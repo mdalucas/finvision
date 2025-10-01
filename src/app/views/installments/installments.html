@@ -1,0 +1,220 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h1 class="mb-0">
+                <i class="fas fa-credit-card me-2"></i>
+                Controle de Parcelas
+              </h1>
+            </div>
+            <div class="col-md-6 text-end">
+              <div class="btn-group">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary"
+                  (click)="goToCalendar()">
+                  <i class="fas fa-calendar-alt me-1"></i>
+                  Calendário
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary"
+                  (click)="goToDashboard()">
+                  <i class="fas fa-tachometer-alt me-1"></i>
+                  Dashboard
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-success"
+                  (click)="openAddInstallmentModal()">
+                  <i class="fas fa-plus me-1"></i>
+                  Nova Parcela
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros e Estatísticas -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <label for="categoryFilter" class="form-label">Filtrar por Categoria</label>
+          <select 
+            id="categoryFilter"
+            class="form-select" 
+            [(ngModel)]="selectedCategory" 
+            (change)="onCategoryFilterChange()">
+            <option value="">Todas as categorias</option>
+            <option *ngFor="let category of categories" [value]="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-info text-white">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total de Parcelamentos</h5>
+          <h3 class="mb-0">{{ installmentRows.length }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-warning text-dark">
+        <div class="card-body text-center">
+          <h5 class="card-title">Valor Total</h5>
+          <h3 class="mb-0">{{ getTotalOfAllInstallments() | currency:'BRL':'symbol':'1.2-2' }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de Parcelas -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Visão Mensal das Parcelas</h5>
+          <button 
+            type="button" 
+            class="btn btn-outline-success btn-sm"
+            (click)="exportToCSV()"
+            [disabled]="installmentRows.length === 0">
+            <i class="fas fa-download me-1"></i>
+            Exportar CSV
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="installmentRows.length === 0" class="text-center p-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Nenhum parcelamento encontrado</h4>
+            <p class="text-muted">Adicione um novo parcelamento para começar</p>
+            <button 
+              type="button" 
+              class="btn btn-primary"
+              (click)="openAddInstallmentModal()">
+              <i class="fas fa-plus me-2"></i>
+              Adicionar Parcelamento
+            </button>
+          </div>
+
+          <div *ngIf="installmentRows.length > 0" class="table-responsive">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="sticky-column">Parcelamento</th>
+                  <th scope="col" class="sticky-column-2">Categoria</th>
+                  <th scope="col" *ngFor="let month of visibleMonths" class="text-center">
+                    {{ month }}
+                  </th>
+                  <th scope="col" class="text-center">Total</th>
+                  <th scope="col" class="text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of installmentRows; trackBy: trackByRow">
+                  <td class="sticky-column">
+                    <strong>{{ row.planTitle }}</strong>
+                  </td>
+                  <td class="sticky-column-2">
+                    <span class="badge bg-secondary">{{ row.category }}</span>
+                  </td>
+                  <td 
+                    *ngFor="let month of visibleMonths" 
+                    class="text-center"
+                    [class.has-installment]="hasInstallmentInMonth(row, month)">
+                    <span 
+                      *ngIf="hasInstallmentInMonth(row, month)"
+                      class="installment-value">
+                      {{ getInstallmentValue(row, month) | currency:'BRL':'symbol':'1.0-0' }}
+                    </span>
+                    <span *ngIf="!hasInstallmentInMonth(row, month)" class="text-muted">-</span>
+                  </td>
+                  <td class="text-center">
+                    <strong class="text-primary">
+                      {{ row.totalValue | currency:'BRL':'symbol':'1.2-2' }}
+                    </strong>
+                  </td>
+                  <td class="text-center">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="deleteInstallment(row.planId)"
+                      title="Excluir parcelamento">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="table-warning">
+                <tr>
+                  <td class="sticky-column"><strong>TOTAL MENSAL</strong></td>
+                  <td class="sticky-column-2"></td>
+                  <td 
+                    *ngFor="let monthTotal of monthTotals" 
+                    class="text-center">
+                    <strong>
+                      {{ monthTotal.total | currency:'BRL':'symbol':'1.0-0' }}
+                    </strong>
+                  </td>
+                  <td class="text-center">
+                    <strong class="text-success">
+                      {{ getTotalOfAllInstallments() | currency:'BRL':'symbol':'1.2-2' }}
+                    </strong>
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informações Adicionais -->
+  <div class="row mt-4" *ngIf="installmentRows.length > 0">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="fas fa-info-circle me-2"></i>
+            Informações Importantes
+          </h5>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="alert alert-info">
+                <h6><i class="fas fa-lightbulb me-2"></i>Sobre os Parcelamentos</h6>
+                <ul class="mb-0">
+                  <li>Parcelas não são incluídas automaticamente no Dashboard</li>
+                  <li>Use esta tela para acompanhar compromissos futuros</li>
+                  <li>Exporte dados para análise externa</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-warning">
+                <h6><i class="fas fa-exclamation-triangle me-2"></i>Observações</h6>
+                <ul class="mb-0">
+                  <li>Valores são calculados automaticamente</li>
+                  <li>Para registrar pagamentos, use o Dashboard</li>
+                  <li>Categorias ajudam na organização</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

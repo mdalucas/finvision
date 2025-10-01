@@ -1,0 +1,237 @@
+<div class="container-fluid">
+  <!-- Filtro de Mês/Ano -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h1 class="mb-0">Dashboard Financeiro</h1>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-6">
+                  <label for="monthFilter" class="form-label">Mês</label>
+                  <select 
+                    id="monthFilter"
+                    class="form-select" 
+                    [(ngModel)]="currentFilter.month" 
+                    (change)="onFilterChange()">
+                    <option *ngFor="let month of monthOptions" [value]="month.value">
+                      {{ month.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="yearFilter" class="form-label">Ano</label>
+                  <select 
+                    id="yearFilter"
+                    class="form-select" 
+                    [(ngModel)]="currentFilter.year" 
+                    (change)="onFilterChange()">
+                    <option *ngFor="let year of yearOptions" [value]="year">
+                      {{ year }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Principal - 3 Colunas -->
+  <div class="row">
+    <!-- Coluna A: Entradas -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+          <h5 class="mb-0">Entradas</h5>
+          <span class="badge bg-light text-success fs-6">
+            {{ totalIncomes | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div class="transaction-list">
+            <div 
+              *ngFor="let income of incomes" 
+              class="transaction-item border-bottom p-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ income.title }}</h6>
+                  <small class="text-muted">{{ income.category || 'Sem categoria' }}</small>
+                  <br>
+                  <small class="text-muted">{{ income.date | date:'dd/MM/yyyy' }}</small>
+                </div>
+                <div class="text-end">
+                  <div class="text-success fw-bold">
+                    {{ income.value | currency:'BRL':'symbol':'1.2-2' }}
+                  </div>
+                  <div class="btn-group btn-group-sm mt-1">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="editTransaction(income)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="deleteTransaction(income)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="incomes.length === 0" class="text-center p-4 text-muted">
+              <i class="fas fa-inbox fa-2x mb-2"></i>
+              <p>Nenhuma entrada registrada para este mês</p>
+            </div>
+          </div>
+          
+          <div class="card-footer">
+            <button 
+              type="button" 
+              class="btn btn-success w-100"
+              (click)="openAddIncomeModal()">
+              <i class="fas fa-plus me-2"></i>
+              Adicionar Entrada
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna B: Saídas -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-danger text-white">
+          <h5 class="mb-0">Saídas</h5>
+          <span class="badge bg-light text-danger fs-6">
+            {{ totalExpenses | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div class="transaction-list">
+            <div 
+              *ngFor="let expense of expenses" 
+              class="transaction-item border-bottom p-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ expense.title }}</h6>
+                  <small class="text-muted">{{ expense.category || 'Sem categoria' }}</small>
+                  <br>
+                  <small class="text-muted">{{ expense.date | date:'dd/MM/yyyy' }}</small>
+                </div>
+                <div class="text-end">
+                  <div class="text-danger fw-bold">
+                    {{ expense.value | currency:'BRL':'symbol':'1.2-2' }}
+                  </div>
+                  <div class="btn-group btn-group-sm mt-1">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="editTransaction(expense)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="deleteTransaction(expense)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="expenses.length === 0" class="text-center p-4 text-muted">
+              <i class="fas fa-inbox fa-2x mb-2"></i>
+              <p>Nenhuma saída registrada para este mês</p>
+            </div>
+          </div>
+          
+          <div class="card-footer">
+            <button 
+              type="button" 
+              class="btn btn-danger w-100"
+              (click)="openAddExpenseModal()">
+              <i class="fas fa-plus me-2"></i>
+              Adicionar Saída
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna C: Cash Flow e Ações -->
+    <div class="col-md-4 col-12 mb-3">
+      <div class="card h-100">
+        <div class="card-header text-center" 
+             [class.bg-success]="cashFlow >= 0" 
+             [class.bg-danger]="cashFlow < 0" 
+             [class.text-white]="true">
+          <h5 class="mb-0">Saldo do Mês</h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="display-4 fw-bold mb-4"
+               [class.text-success]="cashFlow >= 0"
+               [class.text-danger]="cashFlow < 0">
+            {{ cashFlow | currency:'BRL':'symbol':'1.2-2' }}
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-6">
+              <div class="text-center">
+                <small class="text-muted">Entradas</small>
+                <div class="text-success fw-bold">
+                  {{ totalIncomes | currency:'BRL':'symbol':'1.0-0' }}
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center">
+                <small class="text-muted">Saídas</small>
+                <div class="text-danger fw-bold">
+                  {{ totalExpenses | currency:'BRL':'symbol':'1.0-0' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="d-grid gap-2">
+            <button 
+              type="button" 
+              class="btn btn-outline-primary"
+              (click)="goToCalendar()">
+              <i class="fas fa-calendar-alt me-2"></i>
+              Calendário
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary"
+              (click)="goToInstallments()">
+              <i class="fas fa-credit-card me-2"></i>
+              Parcelas
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-warning"
+              (click)="openInstallmentModal()">
+              <i class="fas fa-plus me-2"></i>
+              Novo Parcelamento
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

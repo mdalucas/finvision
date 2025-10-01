@@ -1,0 +1,203 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h1 class="mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Calendário Financeiro
+              </h1>
+            </div>
+            <div class="col-md-4 text-center">
+              <div class="d-flex align-items-center justify-content-center">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary me-2"
+                  (click)="previousMonth()">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <h3 class="mb-0 mx-3">{{ getMonthName() }} {{ currentDate.year }}</h3>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary ms-2"
+                  (click)="nextMonth()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="btn-group">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary"
+                  (click)="goToToday()">
+                  <i class="fas fa-home me-1"></i>
+                  Hoje
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-primary"
+                  (click)="goToDashboard()">
+                  <i class="fas fa-tachometer-alt me-1"></i>
+                  Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-3">
+              <label for="categoryFilter" class="form-label">Filtrar por Categoria</label>
+              <select 
+                id="categoryFilter"
+                class="form-select" 
+                [(ngModel)]="selectedCategory" 
+                (change)="onCategoryFilterChange()">
+                <option value="">Todas as categorias</option>
+                <option *ngFor="let category of categories" [value]="category">
+                  {{ category }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <div class="text-center">
+                <small class="text-muted">
+                  Clique em um dia para adicionar uma nova transação
+                </small>
+              </div>
+            </div>
+            <div class="col-md-3 text-end">
+              <button 
+                type="button" 
+                class="btn btn-success"
+                (click)="openTransactionModal()">
+                <i class="fas fa-plus me-2"></i>
+                Nova Transação
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendário -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-0">
+          <!-- Cabeçalho dos dias da semana -->
+          <div class="calendar-header">
+            <div class="calendar-day-header">Dom</div>
+            <div class="calendar-day-header">Seg</div>
+            <div class="calendar-day-header">Ter</div>
+            <div class="calendar-day-header">Qua</div>
+            <div class="calendar-day-header">Qui</div>
+            <div class="calendar-day-header">Sex</div>
+            <div class="calendar-day-header">Sáb</div>
+          </div>
+
+          <!-- Grade do calendário -->
+          <div class="calendar-grid">
+            <div 
+              *ngFor="let day of calendarDays"
+              class="calendar-day"
+              [class.other-month]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.selected]="day.isSelected"
+              [class.has-transactions]="day.transactions.length > 0"
+              (click)="onDateClick(day)">
+              
+              <!-- Número do dia -->
+              <div class="day-number">
+                {{ day.date.day }}
+              </div>
+
+              <!-- Lista de transações -->
+              <div class="transactions-list">
+                <div 
+                  *ngFor="let transaction of day.transactions; let i = index; trackBy: trackByTransaction"
+                  class="transaction-item"
+                  [class.income]="transaction.type === 'income'"
+                  [class.expense]="transaction.type === 'expense'"
+                  (click)="editTransaction(transaction, $event)">
+                  
+                  <div class="transaction-content">
+                    <div class="transaction-title">{{ transaction.title }}</div>
+                    <div class="transaction-value">
+                      {{ transaction.value | currency:'BRL':'symbol':'1.0-0' }}
+                    </div>
+                  </div>
+                  
+                  <button 
+                    type="button"
+                    class="btn-delete"
+                    (click)="deleteTransaction(transaction, $event)"
+                    title="Excluir transação">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Indicador de mais transações -->
+              <div 
+                *ngIf="day.transactions.length > 3"
+                class="more-transactions">
+                +{{ day.transactions.length - 3 }} mais
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legenda -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Legenda</h5>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="legend-item">
+                <div class="legend-color income"></div>
+                <span>Entradas</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="legend-item">
+                <div class="legend-color expense"></div>
+                <span>Saídas</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="legend-item">
+                <div class="legend-color today"></div>
+                <span>Hoje</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="legend-item">
+                <div class="legend-color selected"></div>
+                <span>Dia Selecionado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
