@@ -31,22 +31,7 @@ export class Calendar implements OnInit, OnDestroy {
   calendarDays: CalendarDay[] = [];
   allTransactions: Transaction[] = [];
   
-  // Filtros
-  selectedCategory = '';
-  categories = [
-    'Alimentação',
-    'Transporte',
-    'Saúde',
-    'Educação',
-    'Lazer',
-    'Casa',
-    'Roupas',
-    'Eletrônicos',
-    'Investimentos',
-    'Salário',
-    'Freelance',
-    'Outros'
-  ];
+  // Filtros removidos - apenas entradas são permitidas
 
   // Visualização
   viewMode: 'month' | 'week' = 'month';
@@ -167,14 +152,10 @@ export class Calendar implements OnInit, OnDestroy {
     const today = this.calendar.getToday();
     const dateString = `${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
     
-    let transactions = this.allTransactions.filter(t => 
-      t.date.startsWith(dateString)
+    // Filtrar apenas entradas (income) e transações da data
+    const transactions = this.allTransactions.filter(t => 
+      t.date.startsWith(dateString) && t.type === 'income'
     );
-    
-    // Aplicar filtro de categoria se selecionado
-    if (this.selectedCategory) {
-      transactions = transactions.filter(t => t.category === this.selectedCategory);
-    }
     
     return {
       date,
@@ -193,12 +174,16 @@ export class Calendar implements OnInit, OnDestroy {
     this.selectedDate = day.date;
     this.generateCalendarDays(); // Regenerar para atualizar seleção
     
-    // Abrir modal para adicionar transação
+    // Abrir modal para adicionar entrada
     this.openTransactionModal(day.date);
   }
 
   openTransactionModal(date?: NgbDate): void {
     const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
+    
+    // Definir como entrada por padrão
+    modalRef.componentInstance.defaultType = 'income';
+    modalRef.componentInstance.allowInstallments = false; // Remover opção de parcelas
     
     if (date) {
       const dateString = `${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
@@ -206,7 +191,7 @@ export class Calendar implements OnInit, OnDestroy {
     }
     
     modalRef.result.then((result) => {
-      if (result === 'saved' || result === 'installment_created') {
+      if (result === 'saved') {
         this.loadTransactions();
         this.generateCalendarDays();
       }
@@ -239,9 +224,6 @@ export class Calendar implements OnInit, OnDestroy {
     this.generateCalendarDays();
   }
 
-  onCategoryFilterChange(): void {
-    this.generateCalendarDays();
-  }
 
   goToDashboard(): void {
     this.router.navigate(['/']);
@@ -252,7 +234,7 @@ export class Calendar implements OnInit, OnDestroy {
     
     const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
     modalRef.componentInstance.transaction = transaction;
-    modalRef.componentInstance.allowInstallments = false;
+    modalRef.componentInstance.allowInstallments = false; // Remover opção de parcelas
     
     modalRef.result.then((result) => {
       if (result === 'saved') {

@@ -7,7 +7,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { Transaction, MonthlyFilter } from '../../shared/models/transaction.model';
 import { FinanceService } from '../../shared/services/finance.service';
 import { TransactionModalComponent } from '../../shared/components/transaction-modal/transaction-modal.component';
-import { InstallmentModalComponent } from '../../shared/components/installment-modal/installment-modal.component';
 
 @Component({
   selector: 'app-main-dashboard',
@@ -81,23 +80,19 @@ export class MainDashboard implements OnInit, OnDestroy {
     const transactions = this.financeService.getTransactionsByMonth(
       this.currentFilter.month, 
       this.currentFilter.year
-    ).filter(t => t.showOnDashboard);
+    ).filter(t => t.showOnDashboard && t.type === 'income');
 
-    this.incomes = transactions.filter(t => t.type === 'income');
-    this.expenses = transactions.filter(t => t.type === 'expense');
+    this.incomes = transactions;
+    this.expenses = []; // Sempre vazio - apenas entradas
 
     this.calculateTotals();
   }
 
   private calculateTotals(): void {
-    const totals = this.financeService.calculateTotals(
-      this.currentFilter.month, 
-      this.currentFilter.year
-    );
-    
-    this.totalIncomes = totals.totalIncomes;
-    this.totalExpenses = totals.totalExpenses;
-    this.cashFlow = totals.cashFlow;
+    // Calcular apenas entradas
+    this.totalIncomes = this.incomes.reduce((sum, income) => sum + income.value, 0);
+    this.totalExpenses = 0; // Sempre zero - apenas entradas
+    this.cashFlow = this.totalIncomes; // Saldo = entradas (sem saídas)
   }
 
   onFilterChange(): void {
@@ -118,39 +113,9 @@ export class MainDashboard implements OnInit, OnDestroy {
     });
   }
 
-  openAddExpenseModal(): void {
-    const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
-    modalRef.componentInstance.defaultType = 'expense';
-    modalRef.componentInstance.defaultDate = this.getCurrentFilterDate();
-    
-    modalRef.result.then((result) => {
-      if (result === 'saved' || result === 'installment_created') {
-        this.loadData();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
-  }
-
-  openInstallmentModal(): void {
-    const modalRef = this.modalService.open(InstallmentModalComponent, { size: 'lg' });
-    
-    modalRef.result.then((result) => {
-      if (result === 'saved') {
-        // Opcionalmente recarregar dados se parcelas forem mostradas no dashboard
-        this.loadData();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
-  }
 
   goToCalendar(): void {
     this.router.navigate(['/calendar']);
-  }
-
-  goToInstallments(): void {
-    this.router.navigate(['/installments']);
   }
 
   editTransaction(transaction: Transaction): void {

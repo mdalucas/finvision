@@ -173,14 +173,6 @@
     }
   }
   
-  &.expense {
-    background-color: #f8d7da;
-    border-left: 3px solid #dc3545;
-    
-    .transaction-value {
-      color: #721c24;
-    }
-  }
   
   .transaction-content {
     flex: 1;
@@ -309,9 +301,6 @@
       background-color: #28a745;
     }
     
-    &.expense {
-      background-color: #dc3545;
-    }
     
     &.today {
       background-color: #007bff;

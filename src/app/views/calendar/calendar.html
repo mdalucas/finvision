@@ -61,7 +61,7 @@
       <div class="card">
         <div class="card-body">
           <div class="row align-items-center">
-            <div class="col-md-2">
+            <div class="col-md-3">
               <label for="viewMode" class="form-label">Visualização</label>
               <select 
                 id="viewMode"
@@ -72,23 +72,10 @@
                 <option value="week">Semana</option>
               </select>
             </div>
-            <div class="col-md-3">
-              <label for="categoryFilter" class="form-label">Filtrar por Categoria</label>
-              <select 
-                id="categoryFilter"
-                class="form-select" 
-                [(ngModel)]="selectedCategory" 
-                (change)="onCategoryFilterChange()">
-                <option value="">Todas as categorias</option>
-                <option *ngFor="let category of categories" [value]="category">
-                  {{ category }}
-                </option>
-              </select>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="text-center">
                 <small class="text-muted">
-                  Clique em um dia para adicionar uma nova transação
+                  Clique em um dia para adicionar uma nova entrada
                 </small>
               </div>
             </div>
@@ -98,7 +85,7 @@
                 class="btn btn-success"
                 (click)="openTransactionModal()">
                 <i class="fas fa-plus me-2"></i>
-                Nova Transação
+                Nova Entrada
               </button>
             </div>
           </div>
@@ -185,25 +172,19 @@
         <div class="card-body">
           <h5 class="card-title">Legenda</h5>
           <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
               <div class="legend-item">
                 <div class="legend-color income"></div>
                 <span>Entradas</span>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="legend-item">
-                <div class="legend-color expense"></div>
-                <span>Saídas</span>
-              </div>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <div class="legend-item">
                 <div class="legend-color today"></div>
                 <span>Hoje</span>
               </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <div class="legend-item">
                 <div class="legend-color selected"></div>
                 <span>Dia Selecionado</span>
