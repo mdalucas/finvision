@@ -19,7 +19,10 @@
                   (click)="previousMonth()">
                   <i class="fas fa-chevron-left"></i>
                 </button>
-                <h3 class="mb-0 mx-3">{{ getMonthName() }} {{ currentDate.year }}</h3>
+                <h3 class="mb-0 mx-3">
+                  <span *ngIf="viewMode === 'month'">{{ getMonthName() }} {{ currentDate.year }}</span>
+                  <span *ngIf="viewMode === 'week'">{{ getWeekRange() }}</span>
+                </h3>
                 <button 
                   type="button" 
                   class="btn btn-outline-primary ms-2"
@@ -58,6 +61,17 @@
       <div class="card">
         <div class="card-body">
           <div class="row align-items-center">
+            <div class="col-md-2">
+              <label for="viewMode" class="form-label">Visualização</label>
+              <select 
+                id="viewMode"
+                class="form-select" 
+                [(ngModel)]="viewMode" 
+                (change)="onViewModeChange()">
+                <option value="month">Mês</option>
+                <option value="week">Semana</option>
+              </select>
+            </div>
             <div class="col-md-3">
               <label for="categoryFilter" class="form-label">Filtrar por Categoria</label>
               <select 
@@ -71,7 +85,7 @@
                 </option>
               </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="text-center">
                 <small class="text-muted">
                   Clique em um dia para adicionar uma nova transação
@@ -110,7 +124,7 @@
           </div>
 
           <!-- Grade do calendário -->
-          <div class="calendar-grid">
+          <div class="calendar-grid" [class.week-view]="viewMode === 'week'">
             <div 
               *ngFor="let day of calendarDays"
               class="calendar-day"

@@ -48,6 +48,9 @@ export class Calendar implements OnInit, OnDestroy {
     'Outros'
   ];
 
+  // Visualização
+  viewMode: 'month' | 'week' = 'month';
+
   constructor(
     private calendar: NgbCalendar,
     private modalService: NgbModal,
@@ -82,6 +85,14 @@ export class Calendar implements OnInit, OnDestroy {
   }
 
   private generateCalendarDays(): void {
+    if (this.viewMode === 'week') {
+      this.generateWeekDays();
+    } else {
+      this.generateMonthDays();
+    }
+  }
+
+  private generateMonthDays(): void {
     const year = this.currentDate.year;
     const month = this.currentDate.month;
     
@@ -119,6 +130,36 @@ export class Calendar implements OnInit, OnDestroy {
     for (let day = 1; day <= daysToAdd; day++) {
       const date = new NgbDate(nextYear, nextMonth, day);
       this.calendarDays.push(this.createCalendarDay(date, false));
+    }
+  }
+
+  private generateWeekDays(): void {
+    const year = this.currentDate.year;
+    const month = this.currentDate.month;
+    const day = this.currentDate.day;
+    
+    // Encontrar o domingo da semana atual
+    const currentDate = new Date(year, month - 1, day);
+    const dayOfWeek = currentDate.getDay(); // 0 = domingo, 1 = segunda, etc.
+    const sunday = new Date(currentDate);
+    sunday.setDate(currentDate.getDate() - dayOfWeek);
+    
+    this.calendarDays = [];
+    
+    // Gerar os 7 dias da semana
+    for (let i = 0; i < 7; i++) {
+      const weekDate = new Date(sunday);
+      weekDate.setDate(sunday.getDate() + i);
+      
+      const ngbDate = new NgbDate(
+        weekDate.getFullYear(),
+        weekDate.getMonth() + 1,
+        weekDate.getDate()
+      );
+      
+      // Verificar se o dia pertence ao mês atual
+      const isCurrentMonth = ngbDate.month === month && ngbDate.year === year;
+      this.calendarDays.push(this.createCalendarDay(ngbDate, isCurrentMonth));
     }
   }
 
@@ -175,12 +216,20 @@ export class Calendar implements OnInit, OnDestroy {
   }
 
   previousMonth(): void {
-    this.currentDate = this.calendar.getPrev(this.currentDate, 'm', 1);
+    if (this.viewMode === 'week') {
+      this.currentDate = this.calendar.getPrev(this.currentDate, 'd', 7);
+    } else {
+      this.currentDate = this.calendar.getPrev(this.currentDate, 'm', 1);
+    }
     this.generateCalendarDays();
   }
 
   nextMonth(): void {
-    this.currentDate = this.calendar.getNext(this.currentDate, 'm', 1);
+    if (this.viewMode === 'week') {
+      this.currentDate = this.calendar.getNext(this.currentDate, 'd', 7);
+    } else {
+      this.currentDate = this.calendar.getNext(this.currentDate, 'm', 1);
+    }
     this.generateCalendarDays();
   }
 
@@ -229,6 +278,24 @@ export class Calendar implements OnInit, OnDestroy {
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
     return monthNames[this.currentDate.month - 1];
+  }
+
+  getWeekRange(): string {
+    if (this.viewMode === 'week' && this.calendarDays.length > 0) {
+      const firstDay = this.calendarDays[0].date;
+      const lastDay = this.calendarDays[6].date;
+      
+      if (firstDay.month === lastDay.month) {
+        return `${firstDay.day} - ${lastDay.day} de ${this.getMonthName()} ${firstDay.year}`;
+      } else {
+        return `${firstDay.day} de ${this.getMonthName()} - ${lastDay.day} de ${this.getMonthName()} ${lastDay.year}`;
+      }
+    }
+    return '';
+  }
+
+  onViewModeChange(): void {
+    this.generateCalendarDays();
   }
 
   trackByTransaction(index: number, transaction: Transaction): string {

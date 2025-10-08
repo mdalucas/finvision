@@ -39,6 +39,10 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(6, minmax(120px, auto));
+  
+  &.week-view {
+    grid-template-rows: repeat(1, minmax(200px, auto));
+  }
 }
 
 .calendar-day {
@@ -95,6 +99,16 @@
       align-items: center;
       justify-content: center;
       font-size: 0.875rem;
+    }
+  }
+  
+  // Estilos específicos para visualização semanal
+  .week-view & {
+    min-height: 200px;
+    border-bottom: none;
+    
+    &:last-child {
+      border-right: none;
     }
   }
 }
