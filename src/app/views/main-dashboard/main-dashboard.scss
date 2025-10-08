@@ -154,6 +154,7 @@
   color: #6c757d !important;
 }
 
+// Responsividade para mobile
 @media (max-width: 768px) {
   .container-fluid {
     padding: 10px;
@@ -172,16 +173,18 @@
   }
   
   .btn-group {
-    opacity: 1;
+    opacity: 1; // Sempre visível no mobile
   }
 }
 
+// Animações
 .card {
   &:hover {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   }
 }
 
+// Scrollbar personalizada
 .transaction-list::-webkit-scrollbar {
   width: 6px;
 }
