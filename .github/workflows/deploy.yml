@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular app
-        run: npm run build -- --configuration production --base-href "https://mdalucaa.github.io/finvision/"
+        run: npm run build -- --configuration production --base-href "https://mdalucas.github.io/finvision/"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
