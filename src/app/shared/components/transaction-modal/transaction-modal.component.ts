@@ -23,16 +23,16 @@ import { FinanceService } from '../../services/finance.service';
     <div class="modal-body">
       <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
         <div class="mb-3">
-          <label for="title" class="form-label">Título *</label>
+          <label for="title" class="form-label">Nome do Paciente *</label>
           <input 
             type="text" 
             class="form-control" 
             id="title"
             formControlName="title"
             [class.is-invalid]="transactionForm.get('title')?.invalid && transactionForm.get('title')?.touched"
-            placeholder="Digite o título da transação">
+            placeholder="Digite o nome do paciente">
           <div class="invalid-feedback" *ngIf="transactionForm.get('title')?.invalid && transactionForm.get('title')?.touched">
-            Título é obrigatório
+            Nome do paciente é obrigatório
           </div>
         </div>
 
@@ -68,15 +68,28 @@ import { FinanceService } from '../../services/finance.service';
           </div>
         </div>
 
+        <div class="mb-3">
+          <label for="time" class="form-label">Horário *</label>
+          <input 
+            type="time" 
+            class="form-control" 
+            id="time"
+            formControlName="time"
+            [class.is-invalid]="transactionForm.get('time')?.invalid && transactionForm.get('time')?.touched">
+          <div class="invalid-feedback" *ngIf="transactionForm.get('time')?.invalid && transactionForm.get('time')?.touched">
+            Horário é obrigatório
+          </div>
+        </div>
+
 
         <div class="mb-3 form-check">
           <input 
             type="checkbox" 
             class="form-check-input" 
-            id="showOnDashboard"
-            formControlName="showOnDashboard">
-          <label class="form-check-label" for="showOnDashboard">
-            Mostrar no Dashboard
+            id="received"
+            formControlName="received">
+          <label class="form-check-label" for="received">
+            Pago
           </label>
         </div>
 
@@ -123,19 +136,21 @@ export class TransactionModalComponent implements OnInit {
   }
 
   get modalTitle(): string {
-    if (this.isEdit) return 'Editar Entrada';
-    return 'Nova Entrada';
+    if (this.isEdit) return 'Editar Paciente';
+    return 'Novo Paciente';
   }
 
   private initForm(): void {
     const today = new Date().toISOString().split('T')[0];
+    const currentTime = new Date().toTimeString().slice(0, 5); // HH:MM format
     
     this.transactionForm = this.fb.group({
       title: [this.transaction?.title || '', [Validators.required]],
       value: [this.transaction?.value || '', [Validators.required, Validators.min(0.01)]],
       date: [this.transaction?.date?.split('T')[0] || this.defaultDate || today, [Validators.required]],
+      time: [this.transaction?.time || currentTime, [Validators.required]],
       type: ['income'], // Sempre entrada
-      showOnDashboard: [this.transaction?.showOnDashboard ?? true]
+      received: [this.transaction?.received ?? false] // Por padrão não pago
     });
   }
 
@@ -147,23 +162,28 @@ export class TransactionModalComponent implements OnInit {
   }
 
   private createSimpleTransaction(formValue: any): void {
+    // Converter data para formato ISO completo para evitar problemas de timezone
+    const isoDate = new Date(formValue.date + 'T00:00:00.000Z').toISOString();
+    
     if (this.isEdit && this.transaction) {
       const updatedTransaction: Transaction = {
         ...this.transaction,
         title: formValue.title,
         value: formValue.value,
-        date: formValue.date,
+        date: isoDate,
+        time: formValue.time,
         type: formValue.type,
-        showOnDashboard: formValue.showOnDashboard
+        received: formValue.received
       };
       this.financeService.updateTransaction(updatedTransaction);
     } else {
       this.financeService.addTransaction({
         title: formValue.title,
         value: formValue.value,
-        date: formValue.date,
+        date: isoDate,
+        time: formValue.time,
         type: formValue.type,
-        showOnDashboard: formValue.showOnDashboard
+        received: formValue.received
       });
     }
     

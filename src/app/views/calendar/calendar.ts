@@ -152,10 +152,13 @@ export class Calendar implements OnInit, OnDestroy {
     const today = this.calendar.getToday();
     const dateString = `${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
     
-    // Filtrar apenas entradas (income) e transações da data
-    const transactions = this.allTransactions.filter(t => 
-      t.date.startsWith(dateString) && t.type === 'income'
-    );
+    // Filtrar apenas entradas (income) e transações da data, ordenar por horário
+    const transactions = this.allTransactions
+      .filter(t => t.date.startsWith(dateString) && t.type === 'income')
+      .sort((a, b) => {
+        // Ordenar por horário (mais cedo primeiro)
+        return a.time.localeCompare(b.time);
+      });
     
     return {
       date,
@@ -174,7 +177,7 @@ export class Calendar implements OnInit, OnDestroy {
     this.selectedDate = day.date;
     this.generateCalendarDays(); // Regenerar para atualizar seleção
     
-    // Abrir modal para adicionar entrada
+    // Abrir modal para adicionar paciente
     this.openTransactionModal(day.date);
   }
 
@@ -183,7 +186,7 @@ export class Calendar implements OnInit, OnDestroy {
     
     // Definir como entrada por padrão
     modalRef.componentInstance.defaultType = 'income';
-    modalRef.componentInstance.allowInstallments = false; // Remover opção de parcelas
+    modalRef.componentInstance.allowInstallments = false;
     
     if (date) {
       const dateString = `${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
@@ -234,7 +237,7 @@ export class Calendar implements OnInit, OnDestroy {
     
     const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
     modalRef.componentInstance.transaction = transaction;
-    modalRef.componentInstance.allowInstallments = false; // Remover opção de parcelas
+    modalRef.componentInstance.allowInstallments = false;
     
     modalRef.result.then((result) => {
       if (result === 'saved') {
@@ -249,9 +252,16 @@ export class Calendar implements OnInit, OnDestroy {
   deleteTransaction(transaction: Transaction, event: Event): void {
     event.stopPropagation(); // Prevenir que o clique do dia seja executado
     
-    if (confirm(`Tem certeza que deseja excluir "${transaction.title}"?`)) {
+    if (confirm(`Tem certeza que deseja excluir o paciente "${transaction.title}"?`)) {
       this.financeService.removeTransaction(transaction.id);
     }
+  }
+
+  togglePaidStatus(transaction: Transaction, event: Event): void {
+    event.stopPropagation(); // Prevenir que o clique do dia seja executado
+    
+    const updatedTransaction = { ...transaction, received: !transaction.received };
+    this.financeService.updateTransaction(updatedTransaction);
   }
 
   getMonthName(): string {

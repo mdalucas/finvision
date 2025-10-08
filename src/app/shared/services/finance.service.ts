@@ -18,6 +18,8 @@ export class FinanceService {
 
   constructor(private persistenceService: PersistenceService) {
     this.loadData();
+    // Adicionar horários fictícios aos pacientes existentes que não têm horário
+    this.addFictionalTimesToExistingPatients();
   }
 
   private loadData(): void {
@@ -44,9 +46,12 @@ export class FinanceService {
   getTransactions(month?: number, year?: number): Observable<Transaction[]> {
     if (month !== undefined && year !== undefined) {
       const filtered = this.transactionsSubject.value.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
-        return transactionDate.getMonth() + 1 === month && 
-               transactionDate.getFullYear() === year;
+        // Usar a data como string para evitar problemas de timezone
+        const dateStr = transaction.date.split('T')[0]; // YYYY-MM-DD
+        const [yearStr, monthStr] = dateStr.split('-');
+        
+        return parseInt(monthStr) === month && 
+               parseInt(yearStr) === year;
       });
       return new BehaviorSubject(filtered).asObservable();
     }
@@ -55,9 +60,12 @@ export class FinanceService {
 
   getTransactionsByMonth(month: number, year: number): Transaction[] {
     return this.transactionsSubject.value.filter(transaction => {
-      const transactionDate = new Date(transaction.date);
-      return transactionDate.getMonth() + 1 === month && 
-             transactionDate.getFullYear() === year;
+      // Usar a data como string para evitar problemas de timezone
+      const dateStr = transaction.date.split('T')[0]; // YYYY-MM-DD
+      const [yearStr, monthStr] = dateStr.split('-');
+      
+      return parseInt(monthStr) === month && 
+             parseInt(yearStr) === year;
     });
   }
 
@@ -161,8 +169,7 @@ export class FinanceService {
 
   // Calculation methods
   calculateTotals(month: number, year: number): {totalIncomes: number, totalExpenses: number, cashFlow: number} {
-    const transactions = this.getTransactionsByMonth(month, year)
-      .filter(t => t.showOnDashboard);
+    const transactions = this.getTransactionsByMonth(month, year);
 
     const totalIncomes = transactions
       .filter(t => t.type === 'income')
@@ -184,5 +191,29 @@ export class FinanceService {
       month: now.getMonth() + 1,
       year: now.getFullYear()
     };
+  }
+
+  // Método para adicionar horários fictícios aos pacientes existentes
+  addFictionalTimesToExistingPatients(): void {
+    const transactions = this.transactionsSubject.value;
+    const fictionalTimes = [
+      '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
+    ];
+    
+    let updated = false;
+    const updatedTransactions = transactions.map(transaction => {
+      if (!transaction.time) {
+        const randomTime = fictionalTimes[Math.floor(Math.random() * fictionalTimes.length)];
+        updated = true;
+        return { ...transaction, time: randomTime };
+      }
+      return transaction;
+    });
+    
+    if (updated) {
+      this.transactionsSubject.next(updatedTransactions);
+      this.saveTransactions();
+    }
   }
 }

@@ -54,6 +54,19 @@
   &:hover .btn-group {
     opacity: 1;
   }
+  
+  // Estilos para entradas recebidas
+  &.received {
+    border-left: 4px solid #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+  }
+  
+  // Estilos para entradas não recebidas
+  &.not-received {
+    border-left: 4px solid #6c757d;
+    background-color: rgba(108, 117, 125, 0.05);
+    opacity: 0.8;
+  }
 }
 
 .form-label {

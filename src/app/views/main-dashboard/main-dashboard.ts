@@ -19,12 +19,11 @@ export class MainDashboard implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
   currentFilter: MonthlyFilter;
-  incomes: Transaction[] = [];
-  expenses: Transaction[] = [];
+  pendingPatients: Transaction[] = [];
+  paidPatients: Transaction[] = [];
   
-  totalIncomes = 0;
-  totalExpenses = 0;
-  cashFlow = 0;
+  totalPending = 0;
+  totalPaid = 0;
 
   // Opções de mês/ano para o filtro
   monthOptions = [
@@ -80,32 +79,53 @@ export class MainDashboard implements OnInit, OnDestroy {
     const transactions = this.financeService.getTransactionsByMonth(
       this.currentFilter.month, 
       this.currentFilter.year
-    ).filter(t => t.showOnDashboard && t.type === 'income');
+    ).filter(t => t.type === 'income');
 
-    this.incomes = transactions;
-    this.expenses = []; // Sempre vazio - apenas entradas
+    // Separar em pendentes e pagos, ordenar por data e horário
+    this.pendingPatients = transactions
+      .filter(t => !t.received)
+      .sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() === dateB.getTime()) {
+          // Se a data for igual, ordenar por horário
+          return a.time.localeCompare(b.time);
+        }
+        return dateB.getTime() - dateA.getTime();
+      });
+    
+    this.paidPatients = transactions
+      .filter(t => t.received)
+      .sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() === dateB.getTime()) {
+          // Se a data for igual, ordenar por horário
+          return a.time.localeCompare(b.time);
+        }
+        return dateB.getTime() - dateA.getTime();
+      });
 
     this.calculateTotals();
   }
 
   private calculateTotals(): void {
-    // Calcular apenas entradas
-    this.totalIncomes = this.incomes.reduce((sum, income) => sum + income.value, 0);
-    this.totalExpenses = 0; // Sempre zero - apenas entradas
-    this.cashFlow = this.totalIncomes; // Saldo = entradas (sem saídas)
+    // Calcular totais separados
+    this.totalPending = this.pendingPatients.reduce((sum, patient) => sum + patient.value, 0);
+    this.totalPaid = this.paidPatients.reduce((sum, patient) => sum + patient.value, 0);
   }
 
   onFilterChange(): void {
     this.loadData();
   }
 
-  openAddIncomeModal(): void {
+  openAddPatientModal(): void {
     const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
     modalRef.componentInstance.defaultType = 'income';
     modalRef.componentInstance.defaultDate = this.getCurrentFilterDate();
     
     modalRef.result.then((result) => {
-      if (result === 'saved' || result === 'installment_created') {
+      if (result === 'saved') {
         this.loadData();
       }
     }).catch(() => {
@@ -118,10 +138,16 @@ export class MainDashboard implements OnInit, OnDestroy {
     this.router.navigate(['/calendar']);
   }
 
+  markAsPaid(patient: Transaction): void {
+    const updatedPatient = { ...patient, received: true };
+    this.financeService.updateTransaction(updatedPatient);
+    this.loadData();
+  }
+
   editTransaction(transaction: Transaction): void {
     const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
     modalRef.componentInstance.transaction = transaction;
-    modalRef.componentInstance.allowInstallments = false; // Não permitir parcelas ao editar
+    modalRef.componentInstance.allowInstallments = false;
     
     modalRef.result.then((result) => {
       if (result === 'saved') {
@@ -133,7 +159,7 @@ export class MainDashboard implements OnInit, OnDestroy {
   }
 
   deleteTransaction(transaction: Transaction): void {
-    if (confirm(`Tem certeza que deseja excluir "${transaction.title}"?`)) {
+    if (confirm(`Tem certeza que deseja excluir o paciente "${transaction.title}"?`)) {
       this.financeService.removeTransaction(transaction.id);
       this.loadData();
     }

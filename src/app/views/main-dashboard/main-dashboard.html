@@ -6,7 +6,7 @@
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-md-6">
-              <h1 class="mb-0">Dashboard Financeiro</h1>
+              <h1 class="mb-0">Dashboard de Pacientes</h1>
             </div>
             <div class="col-md-6">
               <div class="row">
@@ -44,40 +44,46 @@
 
   <!-- Dashboard Principal - 2 Colunas -->
   <div class="row">
-    <!-- Coluna A: Entradas -->
+    <!-- Coluna A: Pendentes -->
     <div class="col-md-6 col-12 mb-3">
       <div class="card h-100">
-        <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
-          <h5 class="mb-0">Entradas</h5>
-          <span class="badge bg-light text-success fs-6">
-            {{ totalIncomes | currency:'BRL':'symbol':'1.2-2' }}
+        <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark">
+          <h5 class="mb-0">Pendentes</h5>
+          <span class="badge bg-light text-warning fs-6">
+            {{ totalPending | currency:'BRL':'symbol':'1.2-2' }}
           </span>
         </div>
         <div class="card-body p-0">
           <div class="transaction-list">
             <div 
-              *ngFor="let income of incomes" 
+              *ngFor="let patient of pendingPatients" 
               class="transaction-item border-bottom p-3">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="flex-grow-1">
-                  <h6 class="mb-1">{{ income.title }}</h6>
-                  <small class="text-muted">{{ income.date | date:'dd/MM/yyyy' }}</small>
+                  <h6 class="mb-1">{{ patient.title }}</h6>
+                  <small class="text-muted">{{ patient.date | date:'dd/MM/yyyy' }} às {{ patient.time }}</small>
                 </div>
                 <div class="text-end">
-                  <div class="text-success fw-bold">
-                    {{ income.value | currency:'BRL':'symbol':'1.2-2' }}
+                  <div class="fw-bold text-warning">
+                    {{ patient.value | currency:'BRL':'symbol':'1.2-2' }}
                   </div>
                   <div class="btn-group btn-group-sm mt-1">
                     <button 
                       type="button" 
+                      class="btn btn-outline-success btn-sm"
+                      (click)="markAsPaid(patient)">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button 
+                      type="button" 
                       class="btn btn-outline-primary btn-sm"
-                      (click)="editTransaction(income)">
+                      (click)="editTransaction(patient)">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button 
                       type="button" 
                       class="btn btn-outline-danger btn-sm"
-                      (click)="deleteTransaction(income)">
+                      (click)="deleteTransaction(patient)">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
@@ -85,53 +91,76 @@
               </div>
             </div>
             
-            <div *ngIf="incomes.length === 0" class="text-center p-4 text-muted">
+            <div *ngIf="pendingPatients.length === 0" class="text-center p-4 text-muted">
               <i class="fas fa-inbox fa-2x mb-2"></i>
-              <p>Nenhuma entrada registrada para este mês</p>
+              <p>Nenhum paciente pendente para este mês</p>
             </div>
           </div>
           
           <div class="card-footer">
             <button 
               type="button" 
-              class="btn btn-success w-100"
-              (click)="openAddIncomeModal()">
+              class="btn btn-warning w-100"
+              (click)="openAddPatientModal()">
               <i class="fas fa-plus me-2"></i>
-              Adicionar Entrada
+              Novo Paciente
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Coluna B: Resumo e Ações -->
+    <!-- Coluna B: Pagos -->
     <div class="col-md-6 col-12 mb-3">
       <div class="card h-100">
-        <div class="card-header text-center bg-success text-white">
-          <h5 class="mb-0">Total de Entradas</h5>
+        <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+          <h5 class="mb-0">Pagos</h5>
+          <span class="badge bg-light text-success fs-6">
+            {{ totalPaid | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
         </div>
-        <div class="card-body text-center">
-          <div class="display-4 fw-bold mb-4 text-success">
-            {{ totalIncomes | currency:'BRL':'symbol':'1.2-2' }}
-          </div>
-          
-          <div class="row mb-3">
-            <div class="col-12">
-              <div class="text-center">
-                <small class="text-muted">Receitas do Mês</small>
-                <div class="text-success fw-bold">
-                  {{ totalIncomes | currency:'BRL':'symbol':'1.0-0' }}
+        <div class="card-body p-0">
+          <div class="transaction-list">
+            <div 
+              *ngFor="let patient of paidPatients" 
+              class="transaction-item border-bottom p-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ patient.title }}</h6>
+                  <small class="text-muted">{{ patient.date | date:'dd/MM/yyyy' }} às {{ patient.time }}</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold text-success">
+                    {{ patient.value | currency:'BRL':'symbol':'1.2-2' }}
+                  </div>
+                  <div class="btn-group btn-group-sm mt-1">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="editTransaction(patient)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="deleteTransaction(patient)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+            
+            <div *ngIf="paidPatients.length === 0" class="text-center p-4 text-muted">
+              <i class="fas fa-inbox fa-2x mb-2"></i>
+              <p>Nenhum paciente pago para este mês</p>
+            </div>
           </div>
-
-          <hr>
-
-          <div class="d-grid gap-2">
+          
+          <div class="card-footer">
             <button 
               type="button" 
-              class="btn btn-outline-primary"
+              class="btn btn-outline-primary w-100"
               (click)="goToCalendar()">
               <i class="fas fa-calendar-alt me-2"></i>
               Calendário

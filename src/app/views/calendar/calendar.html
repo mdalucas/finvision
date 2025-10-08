@@ -8,7 +8,7 @@
             <div class="col-md-4">
               <h1 class="mb-0">
                 <i class="fas fa-calendar-alt me-2"></i>
-                Calendário Financeiro
+                Calendário de Pacientes
               </h1>
             </div>
             <div class="col-md-4 text-center">
@@ -75,7 +75,7 @@
             <div class="col-md-6">
               <div class="text-center">
                 <small class="text-muted">
-                  Clique em um dia para adicionar uma nova entrada
+                  Clique em um dia para adicionar um novo paciente
                 </small>
               </div>
             </div>
@@ -85,7 +85,7 @@
                 class="btn btn-success"
                 (click)="openTransactionModal()">
                 <i class="fas fa-plus me-2"></i>
-                Nova Entrada
+                Novo Paciente
               </button>
             </div>
           </div>
@@ -132,13 +132,23 @@
                   *ngFor="let transaction of day.transactions; let i = index; trackBy: trackByTransaction"
                   class="transaction-item"
                   [class.income]="transaction.type === 'income'"
-                  [class.expense]="transaction.type === 'expense'"
+                  [class.received]="transaction.received"
+                  [class.not-received]="!transaction.received"
                   (click)="editTransaction(transaction, $event)">
                   
                   <div class="transaction-content">
+                    <div class="transaction-time">{{ transaction.time }}</div>
                     <div class="transaction-title">{{ transaction.title }}</div>
                     <div class="transaction-value">
                       {{ transaction.value | currency:'BRL':'symbol':'1.0-0' }}
+                    </div>
+                    <div class="transaction-checkbox">
+                      <input 
+                        type="checkbox" 
+                        [checked]="transaction.received"
+                        (change)="togglePaidStatus(transaction, $event)"
+                        class="form-check-input">
+                      <label class="form-check-label">Pago</label>
                     </div>
                   </div>
                   
@@ -172,19 +182,25 @@
         <div class="card-body">
           <h5 class="card-title">Legenda</h5>
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
               <div class="legend-item">
-                <div class="legend-color income"></div>
-                <span>Entradas</span>
+                <div class="legend-color income received"></div>
+                <span>Pago</span>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+              <div class="legend-item">
+                <div class="legend-color income not-received"></div>
+                <span>Pendente</span>
+              </div>
+            </div>
+            <div class="col-md-3">
               <div class="legend-item">
                 <div class="legend-color today"></div>
                 <span>Hoje</span>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <div class="legend-item">
                 <div class="legend-color selected"></div>
                 <span>Dia Selecionado</span>

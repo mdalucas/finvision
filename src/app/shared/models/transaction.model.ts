@@ -5,9 +5,10 @@ export interface Transaction {
   title: string;
   value: number;
   date: string; // ISO
+  time: string; // HH:MM format
   category?: string;
   type: TransactionType;
-  showOnDashboard: boolean; // flag
+  received: boolean; // se a entrada foi recebida
   installmentId?: string | null; // if generated from a parcelado
   createdAt?: string;
   updatedAt?: string;
