@@ -1,0 +1,95 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="fas fa-user-plus me-2"></i>
+    {{ isEditMode ? 'Editar Paciente' : 'Novo Paciente' }}
+  </h4>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  <form (ngSubmit)="save()">
+    <div class="row">
+      <div class="col-12 mb-3">
+        <label for="patientName" class="form-label">Nome *</label>
+        <input 
+          type="text" 
+          id="patientName"
+          class="form-control" 
+          [(ngModel)]="patientData.name" 
+          name="name"
+          placeholder="Digite o nome completo"
+          required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="patientPhone" class="form-label">Telefone *</label>
+        <input 
+          type="tel" 
+          id="patientPhone"
+          class="form-control" 
+          [(ngModel)]="patientData.phone" 
+          name="phone"
+          placeholder="(11) 99999-9999"
+          required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="patientCpf" class="form-label">CPF *</label>
+        <input 
+          type="text" 
+          id="patientCpf"
+          class="form-control" 
+          [(ngModel)]="patientData.cpf" 
+          name="cpf"
+          placeholder="000.000.000-00"
+          required>
+      </div>
+
+      <div class="col-12 mb-3">
+        <label for="scheduleType" class="form-label">Tipo de Atendimento *</label>
+        <select 
+          id="scheduleType"
+          class="form-select" 
+          [(ngModel)]="patientData.scheduleType" 
+          name="scheduleType"
+          required>
+          <option value="weekly">Semanal</option>
+          <option value="biweekly">Quinzenal</option>
+        </select>
+        <div class="form-text">
+          <small class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            <strong>Semanal:</strong> Atendimento toda semana no mesmo horário<br>
+            <strong>Quinzenal:</strong> Atendimento a cada duas semanas, revezando horários
+          </small>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">
+    <i class="fas fa-times me-1"></i>
+    Cancelar
+  </button>
+  
+  <button 
+    type="button" 
+    class="btn btn-primary" 
+    (click)="save()"
+    [disabled]="!patientData.name.trim() || !patientData.phone.trim() || !patientData.cpf.trim()">
+    <i class="fas fa-save me-1"></i>
+    {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+  </button>
+  
+  <button 
+    *ngIf="!isEditMode"
+    type="button" 
+    class="btn btn-success" 
+    (click)="openScheduleModal()"
+    [disabled]="!patientData.name.trim() || !patientData.phone.trim() || !patientData.cpf.trim()">
+    <i class="fas fa-calendar-plus me-1"></i>
+    Salvar e Agendar
+  </button>
+</div>

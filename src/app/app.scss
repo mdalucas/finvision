@@ -1,6 +1,6 @@
 header {
   height: 60px;
-  background-color: #fff;
+  background-color: #fefcf8;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
   align-items: center;
@@ -15,7 +15,7 @@ header {
   h1 {
     margin: 0;
     font-size: 1.5rem;
-    color: #333;
+    color: white;
   }
 }
 
@@ -26,4 +26,5 @@ main {
   overflow: hidden;
   display: block;
   position: relative;
+  background-color: #fefcf8;
 }

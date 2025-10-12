@@ -1,0 +1,117 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="fas fa-calendar-plus me-2"></i>
+    Encaixar na Agenda
+  </h4>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="schedule-info mb-4">
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i>
+      <strong>Paciente:</strong> {{ patient?.name }} 
+      <span class="badge ms-2" [ngClass]="patient?.scheduleType === 'weekly' ? 'bg-primary' : 'bg-secondary'">
+        {{ patient?.scheduleType === 'weekly' ? 'Semanal' : 'Quinzenal' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Grid de Horários -->
+  <div class="schedule-grid">
+    <!-- Cabeçalho dos dias -->
+    <div class="schedule-header">
+      <div class="day-header"></div>
+      <div class="day-header" *ngFor="let day of [1,2,3,4,5]">
+        <div class="day-name">{{ getDayName(day) }}</div>
+        <div class="week-dates">
+          <div class="week-date week-1">{{ formatDate(weekDates.week1.startDate) }}</div>
+          <div class="week-date week-2">{{ formatDate(weekDates.week2.startDate) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de horários -->
+    <div class="schedule-body">
+      <div class="time-column">
+        <div class="time-slot" *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]">
+          {{ hour }}:00
+        </div>
+      </div>
+      
+      <div class="days-columns">
+        <div class="day-column" *ngFor="let day of [1,2,3,4,5]">
+          <div class="week-columns">
+            <!-- Semana 1 -->
+            <div class="week-column week-1">
+              <div 
+                class="time-slot" 
+                *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]; let i = index"
+                [class.occupied]="getSlotForDayWeekHour(day, 1, hour).isOccupied"
+                [class.selected]="isSlotSelected(day, hour + ':00', 1)"
+                [class.biweekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'biweekly'"
+                [title]="getSlotTooltip(getSlotForDayWeekHour(day, 1, hour))"
+                (click)="toggleSlot(day, hour + ':00', 1)">
+                
+                <div class="slot-content" *ngIf="getSlotForDayWeekHour(day, 1, hour).isOccupied">
+                  <div class="patient-name">
+                    {{ getSlotForDayWeekHour(day, 1, hour).patient?.name }}
+                  </div>
+                </div>
+                <div class="slot-content" *ngIf="!getSlotForDayWeekHour(day, 1, hour).isOccupied">
+                  <div class="add-text">Adicionar</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Semana 2 -->
+            <div class="week-column week-2">
+              <div 
+                class="time-slot" 
+                *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]; let i = index"
+                [class.occupied]="getSlotForDayWeekHour(day, 2, hour).isOccupied"
+                [class.selected]="isSlotSelected(day, hour + ':00', 2)"
+                [class.biweekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'biweekly'"
+                [title]="getSlotTooltip(getSlotForDayWeekHour(day, 2, hour))"
+                (click)="toggleSlot(day, hour + ':00', 2)">
+                
+                <div class="slot-content" *ngIf="getSlotForDayWeekHour(day, 2, hour).isOccupied">
+                  <div class="patient-name">
+                    {{ getSlotForDayWeekHour(day, 2, hour).patient?.name }}
+                  </div>
+                </div>
+                <div class="slot-content" *ngIf="!getSlotForDayWeekHour(day, 2, hour).isOccupied">
+                  <div class="add-text">Adicionar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumo da seleção -->
+  <div class="selection-summary mt-4" *ngIf="selectedSlots.length > 0">
+    <div class="alert alert-success">
+      <i class="fas fa-check-circle me-2"></i>
+      <strong>{{ selectedSlots.length }}</strong> horário(s) selecionado(s)
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">
+    <i class="fas fa-times me-1"></i>
+    Cancelar
+  </button>
+  
+  <button 
+    type="button" 
+    class="btn btn-success" 
+    (click)="saveSchedule()"
+    [disabled]="selectedSlots.length === 0">
+    <i class="fas fa-save me-1"></i>
+    Salvar Horários ({{ selectedSlots.length }})
+  </button>
+</div>

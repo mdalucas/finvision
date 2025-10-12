@@ -1,5 +1,5 @@
 .container-fluid {
-  background-color: #f8f9fa;
+  background-color: #f3f0e9;
   min-height: 100vh;
   padding: 20px;
 }
@@ -8,6 +8,7 @@
   border: none;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   border-radius: 0.5rem;
+  background-color: #fefcf8;
   
   .card-header {
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
@@ -16,25 +17,32 @@
     h5 {
       font-weight: 600;
     }
+    
+    // Garantir que textos em headers verdes sejam brancos
+    &.bg-success {
+      h5, .btn {
+        color: white !important;
+      }
+    }
   }
 
   .card-footer {
-    background-color: #f8f9fa;
+    background-color: #fefcf8;
     border-top: 1px solid rgba(0, 0, 0, 0.125);
     border-radius: 0 0 0.5rem 0.5rem;
   }
 }
 
-.transaction-list {
+.transaction-list, .patient-list {
   max-height: 400px;
   overflow-y: auto;
 }
 
-.transaction-item {
+.transaction-item, .patient-item {
   transition: background-color 0.2s ease;
   
   &:hover {
-    background-color: #f8f9fa;
+    background-color: #f5f2ed;
   }
   
   &:last-child {
@@ -69,6 +77,38 @@
   }
 }
 
+// Estilos específicos para horários de pacientes
+.appointment-schedule {
+  .appointment-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    
+    .day-name {
+      font-weight: 500;
+      color: #495057;
+      margin-right: 0.5rem;
+      min-width: 60px;
+    }
+    
+    .time-badge {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-right: 0.5rem;
+    }
+    
+    .biweekly-indicator {
+      font-size: 0.75rem;
+      color: #6c757d;
+      font-style: italic;
+    }
+  }
+}
+
 .form-label {
   font-weight: 500;
   color: #495057;
@@ -80,8 +120,8 @@
   border-radius: 0.375rem;
   
   &:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
   }
 }
 
@@ -122,12 +162,12 @@
   }
   
   &.btn-outline-primary {
-    color: #007bff;
-    border-color: #007bff;
+    color: #28a745;
+    border-color: #28a745;
     
     &:hover {
-      background-color: #007bff;
-      border-color: #007bff;
+      background-color: #28a745;
+      border-color: #28a745;
       color: #fff;
     }
   }
@@ -177,8 +217,21 @@
     padding: 1rem 0.75rem;
   }
   
-  .transaction-item {
+  .transaction-item, .patient-item {
     padding: 1rem 0.75rem !important;
+  }
+  
+  .appointment-schedule .appointment-item {
+    font-size: 0.75rem;
+    
+    .day-name {
+      min-width: 50px;
+    }
+    
+    .time-badge {
+      font-size: 0.6875rem;
+      padding: 0.0625rem 0.25rem;
+    }
   }
   
   .display-4 {
@@ -198,20 +251,43 @@
 }
 
 // Scrollbar personalizada
-.transaction-list::-webkit-scrollbar {
+.transaction-list::-webkit-scrollbar,
+.patient-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.transaction-list::-webkit-scrollbar-track {
+.transaction-list::-webkit-scrollbar-track,
+.patient-list::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.transaction-list::-webkit-scrollbar-thumb {
+.transaction-list::-webkit-scrollbar-thumb,
+.patient-list::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
   
   &:hover {
     background: #a8a8a8;
   }
+}
+
+
+.patient-list {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.patient-item {
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.add-patient-btn {
+  border-radius: 5px;
+  border: 1px solid white;
 }

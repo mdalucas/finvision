@@ -24,7 +24,7 @@ html, body {
   font-size: 14px;
   line-height: 1.5;
   color: #495057;
-  background-color: #f8f9fa;
+  background-color: #fefcf8;
   margin: 0;
   padding: 0;
   height: 100%;
@@ -43,6 +43,13 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   color: #343a40;
   margin-bottom: 1rem;
+}
+
+// Garantir que textos em fundos verdes sejam brancos
+.bg-success h1, .bg-success h2, .bg-success h3, 
+.bg-success h4, .bg-success h5, .bg-success h6,
+.bg-success .btn {
+  color: white !important;
 }
 
 h1 { font-size: 2rem; }
@@ -109,16 +116,16 @@ h6 { font-size: 1rem; }
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f5f2ed;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #d4c4a8;
   border-radius: 4px;
   
   &:hover {
-    background: #a8a8a8;
+    background: #c4b498;
   }
 }
 
@@ -177,7 +184,7 @@ h6 { font-size: 1rem; }
     left: 50%;
     width: 20px;
     height: 20px;
-    border: 2px solid #f3f3f3;
+    border: 2px solid #f5f2ed;
     border-top: 2px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
@@ -199,5 +206,6 @@ h6 { font-size: 1rem; }
   .card {
     box-shadow: none;
     border: 1px solid #dee2e6;
+    background-color: #fefcf8;
   }
 }

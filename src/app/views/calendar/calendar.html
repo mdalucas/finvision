@@ -32,22 +32,20 @@
               </div>
             </div>
             <div class="col-md-4 text-end">
-              <div class="btn-group">
-                <button 
-                  type="button" 
-                  class="btn btn-outline-secondary"
-                  (click)="goToToday()">
-                  <i class="fas fa-home me-1"></i>
-                  Hoje
-                </button>
-                <button 
-                  type="button" 
-                  class="btn btn-primary"
-                  (click)="goToDashboard()">
-                  <i class="fas fa-tachometer-alt me-1"></i>
-                  Dashboard
-                </button>
-              </div>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary me-2"
+                (click)="goToToday()">
+                <i class="fas fa-home me-1"></i>
+                Hoje
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-primary"
+                (click)="openWeeklyGrid()">
+                <i class="fas fa-calendar-week me-1"></i>
+                Grade Semanal
+              </button>
             </div>
           </div>
         </div>
@@ -142,13 +140,13 @@
                     <div class="transaction-value">
                       {{ transaction.value | currency:'BRL':'symbol':'1.0-0' }}
                     </div>
-                    <div class="transaction-checkbox">
+                    <div class="transaction-checkbox" (click)="$event.stopPropagation()">
                       <input 
                         type="checkbox" 
                         [checked]="transaction.received"
                         (change)="togglePaidStatus(transaction, $event)"
                         class="form-check-input">
-                      <label class="form-check-label">Pago</label>
+                      <label class="form-check-label" (click)="$event.stopPropagation()">Pago</label>
                     </div>
                   </div>
                   

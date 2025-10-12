@@ -1,149 +1,65 @@
 <div class="container-fluid">
-  <!-- Filtro de Mês/Ano -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-md-6">
-              <h1 class="mb-0">Dashboard de Pacientes</h1>
-            </div>
-            <div class="col-md-6">
-              <div class="row">
-                <div class="col-6">
-                  <label for="monthFilter" class="form-label">Mês</label>
-                  <select 
-                    id="monthFilter"
-                    class="form-select" 
-                    [(ngModel)]="currentFilter.month" 
-                    (change)="onFilterChange()">
-                    <option *ngFor="let month of monthOptions" [value]="month.value">
-                      {{ month.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label for="yearFilter" class="form-label">Ano</label>
-                  <select 
-                    id="yearFilter"
-                    class="form-select" 
-                    [(ngModel)]="currentFilter.year" 
-                    (change)="onFilterChange()">
-                    <option *ngFor="let year of yearOptions" [value]="year">
-                      {{ year }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dashboard Principal - 2 Colunas -->
+  <!-- Dashboard Principal - 1 Coluna -->
   <div class="row">
-    <!-- Coluna A: Pendentes -->
-    <div class="col-md-6 col-12 mb-3">
-      <div class="card h-100">
-        <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark">
-          <h5 class="mb-0">Pendentes</h5>
-          <span class="badge bg-light text-warning fs-6">
-            {{ totalPending | currency:'BRL':'symbol':'1.2-2' }}
-          </span>
-        </div>
-        <div class="card-body p-0">
-          <div class="transaction-list">
-            <div 
-              *ngFor="let patient of pendingPatients" 
-              class="transaction-item border-bottom p-3">
-              <div class="d-flex justify-content-between align-items-start">
-                <div class="flex-grow-1">
-                  <h6 class="mb-1">{{ patient.title }}</h6>
-                  <small class="text-muted">{{ patient.date | date:'dd/MM/yyyy' }} às {{ patient.time }}</small>
-                </div>
-                <div class="text-end">
-                  <div class="fw-bold text-warning">
-                    {{ patient.value | currency:'BRL':'symbol':'1.2-2' }}
-                  </div>
-                  <div class="btn-group btn-group-sm mt-1">
-                    <button 
-                      type="button" 
-                      class="btn btn-outline-success btn-sm"
-                      (click)="markAsPaid(patient)">
-                      <i class="fas fa-check"></i>
-                    </button>
-                    <button 
-                      type="button" 
-                      class="btn btn-outline-primary btn-sm"
-                      (click)="editTransaction(patient)">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button 
-                      type="button" 
-                      class="btn btn-outline-danger btn-sm"
-                      (click)="deleteTransaction(patient)">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div *ngIf="pendingPatients.length === 0" class="text-center p-4 text-muted">
-              <i class="fas fa-inbox fa-2x mb-2"></i>
-              <p>Nenhum paciente pendente para este mês</p>
-            </div>
-          </div>
-          
-          <div class="card-footer">
-            <button 
-              type="button" 
-              class="btn btn-warning w-100"
-              (click)="openAddPatientModal()">
-              <i class="fas fa-plus me-2"></i>
-              Novo Paciente
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Coluna B: Pagos -->
-    <div class="col-md-6 col-12 mb-3">
+    <!-- Coluna: Pacientes -->
+    <div class="col-md-4 col-12 mb-3">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
-          <h5 class="mb-0">Pagos</h5>
-          <span class="badge bg-light text-success fs-6">
-            {{ totalPaid | currency:'BRL':'symbol':'1.2-2' }}
-          </span>
+          <h5 class="mb-0">Pacientes</h5>
+          <button 
+            type="button" 
+            class="btn btn-outline-success btn-sm add-patient-btn"
+            (click)="openAddPatientModal()">
+            <i class="fas fa-plus me-1"></i>
+            Adicionar
+          </button>
         </div>
         <div class="card-body p-0">
-          <div class="transaction-list">
+          <div class="patient-list">
             <div 
-              *ngFor="let patient of paidPatients" 
-              class="transaction-item border-bottom p-3">
+              *ngFor="let patient of patients" 
+              class="patient-item border-bottom p-3">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="flex-grow-1">
-                  <h6 class="mb-1">{{ patient.title }}</h6>
-                  <small class="text-muted">{{ patient.date | date:'dd/MM/yyyy' }} às {{ patient.time }}</small>
+                  <h6 class="mb-1">{{ patient.name }}</h6>
+                  <small class="text-muted">{{ patient.phone }}</small>
+                  
+                  <!-- Horários de atendimento -->
+                  <div class="mt-2" *ngIf="patient.appointments.length > 0">
+                    <div class="appointment-schedule">
+                      <div 
+                        *ngFor="let appointment of patient.appointments" 
+                        class="appointment-item mb-1">
+                        <i class="fas fa-calendar-day me-1 text-primary"></i>
+                        <span class="day-name">{{ getDayName(appointment.dayOfWeek) }}</span>
+                        <span class="time-badge">{{ appointment.time }}</span>
+                        <span 
+                          *ngIf="appointment.isBiweekly" 
+                          class="biweekly-indicator">
+                          ({{ appointment.biweeklyWeek === 1 ? '1ª' : '2ª' }} semana)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-2">
+                    <span class="badge" [ngClass]="patient.scheduleType === 'weekly' ? 'bg-success' : 'bg-info'">
+                      {{ patient.scheduleType === 'weekly' ? 'Semanal' : 'Quinzenal' }}
+                    </span>
+                  </div>
                 </div>
                 <div class="text-end">
-                  <div class="fw-bold text-success">
-                    {{ patient.value | currency:'BRL':'symbol':'1.2-2' }}
-                  </div>
-                  <div class="btn-group btn-group-sm mt-1">
+                  <div class="btn-group btn-group-sm">
                     <button 
                       type="button" 
                       class="btn btn-outline-primary btn-sm"
-                      (click)="editTransaction(patient)">
+                      (click)="editPatient(patient)">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button 
                       type="button" 
                       class="btn btn-outline-danger btn-sm"
-                      (click)="deleteTransaction(patient)">
+                      (click)="deletePatient(patient)">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
@@ -151,20 +67,10 @@
               </div>
             </div>
             
-            <div *ngIf="paidPatients.length === 0" class="text-center p-4 text-muted">
-              <i class="fas fa-inbox fa-2x mb-2"></i>
-              <p>Nenhum paciente pago para este mês</p>
+            <div *ngIf="patients.length === 0" class="text-center p-4 text-muted">
+              <i class="fas fa-users fa-2x mb-2"></i>
+              <p>Nenhum paciente cadastrado</p>
             </div>
-          </div>
-          
-          <div class="card-footer">
-            <button 
-              type="button" 
-              class="btn btn-outline-primary w-100"
-              (click)="goToCalendar()">
-              <i class="fas fa-calendar-alt me-2"></i>
-              Calendário
-            </button>
           </div>
         </div>
       </div>
