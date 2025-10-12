@@ -21,7 +21,6 @@ export class PatientService {
       if (stored) {
         const rawPatients = JSON.parse(stored);
         const patients = this.normalizePatientData(rawPatients);
-        console.log('Pacientes normalizados:', patients);
         this.patientsSubject.next(patients);
       }
     } catch (error) {
@@ -94,8 +93,6 @@ export class PatientService {
     const startHour = 8;
     const endHour = 20;
     
-    console.log('Gerando slots de horários...');
-    
     // Gerar para as próximas 2 semanas (apenas dias úteis: 1-5)
     for (let week = 1; week <= 2; week++) {
       const weekNumber = week as 1 | 2;
@@ -105,10 +102,6 @@ export class PatientService {
           
           // Verificar se este slot está ocupado
           const occupiedPatient = this.findPatientInSlot(day, time, weekNumber);
-          
-          if (occupiedPatient) {
-            console.log(`Slot ocupado encontrado: ${day} ${time} semana ${weekNumber} - ${occupiedPatient.patient.name}`);
-          }
           
           slots.push({
             dayOfWeek: day,
@@ -122,40 +115,28 @@ export class PatientService {
       }
     }
     
-    console.log(`Total de slots gerados: ${slots.length}`);
-    console.log(`Slots ocupados: ${slots.filter(s => s.isOccupied).length}`);
-    
     return slots;
   }
 
   private findPatientInSlot(dayOfWeek: number, time: string, weekNumber: 1 | 2): { patient: Patient, appointment: Appointment } | null {
     const patients = this.patientsSubject.value;
-    console.log(`Procurando slot: dia ${dayOfWeek}, hora ${time}, semana ${weekNumber}`);
-    console.log('Pacientes disponíveis:', patients);
     
     for (const patient of patients) {
-      console.log(`Verificando paciente: ${patient.name}, appointments:`, patient.appointments);
       for (const appointment of patient.appointments) {
         // Normalizar formatos de horário para comparação
         const normalizedTime = time.padStart(5, '0'); // "8:00" -> "08:00"
         const normalizedAppointmentTime = appointment.time.padStart(5, '0');
         
-        console.log(`Comparando: ${normalizedTime} com ${normalizedAppointmentTime}`);
-        
         if (appointment.dayOfWeek === dayOfWeek && normalizedAppointmentTime === normalizedTime) {
-          console.log(`Match encontrado: ${patient.name} - ${appointment.dayOfWeek} ${appointment.time}`);
           if (patient.scheduleType === 'weekly') {
-            console.log('Retornando paciente semanal');
             return { patient, appointment };
           } else if (patient.scheduleType === 'biweekly' && appointment.biweeklyWeek === weekNumber) {
-            console.log('Retornando paciente quinzenal');
             return { patient, appointment };
           }
         }
       }
     }
     
-    console.log('Nenhum paciente encontrado para este slot');
     return null;
   }
 

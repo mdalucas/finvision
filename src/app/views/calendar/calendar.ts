@@ -7,7 +7,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { Transaction } from '../../shared/models/transaction.model';
 import { FinanceService } from '../../shared/services/finance.service';
 import { TransactionModalComponent } from '../../shared/components/transaction-modal/transaction-modal.component';
-import { WeeklyGridComponent } from '../../shared/components/weekly-grid/weekly-grid.component';
 
 interface CalendarDay {
   date: NgbDate;
@@ -229,15 +228,7 @@ export class Calendar implements OnInit, OnDestroy {
   }
 
   openWeeklyGrid(): void {
-    const modalRef = this.modalService.open(WeeklyGridComponent, { 
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: false
-    });
-    
-    modalRef.result.catch(() => {
-      // Modal dismissed
-    });
+    this.router.navigate(['/weekly-grid']);
   }
 
 

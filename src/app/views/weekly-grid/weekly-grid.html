@@ -1,0 +1,127 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1 class="mb-0">
+                <i class="fas fa-calendar-week me-2"></i>
+                Grade Semanal
+              </h1>
+            </div>
+            <div class="col-md-4 text-end">
+              <!-- Botões removidos -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de Horários -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="schedule-grid">
+            <!-- Cabeçalho dos dias -->
+            <div class="schedule-header">
+              <div class="day-header"></div>
+              <div class="day-header" *ngFor="let day of [1,2,3,4,5]">
+                <div class="day-name">{{ getDayName(day) }}</div>
+                <div class="week-dates" [class.split-dates]="hasBiweeklyPatientsInDay(day)">
+                  <div class="week-date week-1">{{ formatDate(weekDates.week1.startDate) }}</div>
+                  <div class="week-date week-2" [class.hidden]="!hasBiweeklyPatientsInDay(day)">{{ formatDate(weekDates.week2.startDate) }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grid de horários -->
+            <div class="schedule-body">
+              <div class="time-column">
+                <div class="time-slot" *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]">
+                  {{ hour }}:00
+                </div>
+              </div>
+              
+              <div class="days-columns">
+                <div class="day-column" *ngFor="let day of [1,2,3,4,5]">
+                  <div class="week-columns" [class.split-columns]="hasBiweeklyPatientsInDay(day)">
+                    <!-- Semana 1 -->
+                    <div class="week-column week-1" [class.half-width]="hasBiweeklyPatientsInDay(day)">
+                      <div 
+                        class="time-slot" 
+                        *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]; let i = index"
+                        [class.occupied]="getSlotForDayWeekHour(day, 1, hour).isOccupied"
+                        [class.biweekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'biweekly'"
+                        [class.weekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'weekly'"
+                        [title]="getSlotTooltip(getSlotForDayWeekHour(day, 1, hour))">
+                        
+                        <div class="slot-content" *ngIf="getSlotForDayWeekHour(day, 1, hour).isOccupied">
+                          <div class="patient-name">
+                            {{ getSlotForDayWeekHour(day, 1, hour).patient?.name }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Semana 2 -->
+                    <div class="week-column week-2" [class.half-width]="hasBiweeklyPatientsInDay(day)">
+                      <div 
+                        class="time-slot" 
+                        *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]; let i = index"
+                        [class.occupied]="getSlotForDayWeekHour(day, 2, hour).isOccupied"
+                        [class.biweekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'biweekly'"
+                        [class.weekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'weekly'"
+                        [title]="getSlotTooltip(getSlotForDayWeekHour(day, 2, hour))">
+                        
+                        <div class="slot-content" *ngIf="getSlotForDayWeekHour(day, 2, hour).isOccupied">
+                          <div class="patient-name">
+                            {{ getSlotForDayWeekHour(day, 2, hour).patient?.name }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legenda -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Legenda</h5>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="legend-item">
+                <div class="legend-color weekly"></div>
+                <span>Paciente Semanal (ocupa espaço inteiro)</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="legend-item">
+                <div class="legend-color biweekly"></div>
+                <span>Paciente Quinzenal (ocupa metade do espaço)</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>Horário Disponível</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
