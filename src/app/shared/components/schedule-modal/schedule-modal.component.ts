@@ -75,21 +75,29 @@ export class ScheduleModalComponent implements OnInit {
   }
 
   isSlotSelected(dayOfWeek: number, time: string, weekNumber: 1 | 2): boolean {
+    if (!this.patient) return false;
+    
+    // Para pacientes semanais, sempre verificar semana 1
+    const actualWeekNumber = this.patient.scheduleType === 'weekly' ? 1 : weekNumber;
+    
     return this.selectedSlots.some(slot => 
       slot.dayOfWeek === dayOfWeek && 
       slot.time === time && 
-      slot.weekNumber === weekNumber
+      slot.weekNumber === actualWeekNumber
     );
   }
 
   toggleSlot(dayOfWeek: number, time: string, weekNumber: 1 | 2): void {
     if (!this.patient) return;
 
+    // Para pacientes semanais, sempre usar semana 1
+    const actualWeekNumber = this.patient.scheduleType === 'weekly' ? 1 : weekNumber;
+
     // Verificar se o slot está disponível
     const isAvailable = this.patientService.isSlotAvailable(
       dayOfWeek, 
       time, 
-      weekNumber, 
+      actualWeekNumber, 
       this.patient.id
     );
 
@@ -98,7 +106,7 @@ export class ScheduleModalComponent implements OnInit {
     const existingIndex = this.selectedSlots.findIndex(slot => 
       slot.dayOfWeek === dayOfWeek && 
       slot.time === time && 
-      slot.weekNumber === weekNumber
+      slot.weekNumber === actualWeekNumber
     );
 
     if (existingIndex >= 0) {
@@ -106,7 +114,7 @@ export class ScheduleModalComponent implements OnInit {
       this.selectedSlots.splice(existingIndex, 1);
     } else {
       // Adicionar slot selecionado
-      this.selectedSlots.push({ dayOfWeek, time, weekNumber });
+      this.selectedSlots.push({ dayOfWeek, time, weekNumber: actualWeekNumber });
     }
   }
 

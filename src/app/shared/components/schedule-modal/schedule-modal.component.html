@@ -24,9 +24,9 @@
       <div class="day-header"></div>
       <div class="day-header" *ngFor="let day of [1,2,3,4,5]">
         <div class="day-name">{{ getDayName(day) }}</div>
-        <div class="week-dates">
-          <div class="week-date week-1">{{ formatDate(weekDates.week1.startDate) }}</div>
-          <div class="week-date week-2">{{ formatDate(weekDates.week2.startDate) }}</div>
+        <div class="week-dates" [class.weekly-mode]="patient?.scheduleType === 'weekly'">
+          <div class="week-date week-1" [class.full-width]="patient?.scheduleType === 'weekly'">{{ formatDate(weekDates.week1.startDate) }}</div>
+          <div class="week-date week-2" [class.hidden]="patient?.scheduleType === 'weekly'">{{ formatDate(weekDates.week2.startDate) }}</div>
         </div>
       </div>
     </div>
@@ -41,15 +41,17 @@
       
       <div class="days-columns">
         <div class="day-column" *ngFor="let day of [1,2,3,4,5]">
-          <div class="week-columns">
+          <div class="week-columns" [class.weekly-mode]="patient?.scheduleType === 'weekly'">
             <!-- Semana 1 -->
-            <div class="week-column week-1">
+            <div class="week-column week-1" [class.full-width]="patient?.scheduleType === 'weekly'">
               <div 
                 class="time-slot" 
                 *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]; let i = index"
                 [class.occupied]="getSlotForDayWeekHour(day, 1, hour).isOccupied"
                 [class.selected]="isSlotSelected(day, hour + ':00', 1)"
                 [class.biweekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'biweekly'"
+                [class.weekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'weekly'"
+                [class.occupied-gray]="getSlotForDayWeekHour(day, 1, hour).isOccupied && getSlotForDayWeekHour(day, 1, hour).patient?.id !== patient?.id"
                 [title]="getSlotTooltip(getSlotForDayWeekHour(day, 1, hour))"
                 (click)="toggleSlot(day, hour + ':00', 1)">
                 
@@ -65,13 +67,15 @@
             </div>
             
             <!-- Semana 2 -->
-            <div class="week-column week-2">
+            <div class="week-column week-2" [class.full-width]="patient?.scheduleType === 'weekly'" [class.hidden]="patient?.scheduleType === 'weekly'">
               <div 
                 class="time-slot" 
                 *ngFor="let hour of [8,9,10,11,12,13,14,15,16,17,18,19]; let i = index"
                 [class.occupied]="getSlotForDayWeekHour(day, 2, hour).isOccupied"
                 [class.selected]="isSlotSelected(day, hour + ':00', 2)"
                 [class.biweekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'biweekly'"
+                [class.weekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'weekly'"
+                [class.occupied-gray]="getSlotForDayWeekHour(day, 2, hour).isOccupied && getSlotForDayWeekHour(day, 2, hour).patient?.id !== patient?.id"
                 [title]="getSlotTooltip(getSlotForDayWeekHour(day, 2, hour))"
                 (click)="toggleSlot(day, hour + ':00', 2)">
                 

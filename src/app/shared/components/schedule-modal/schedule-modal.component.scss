@@ -59,6 +59,14 @@
       flex-direction: column;
       gap: 0.125rem;
       
+      &.weekly-mode {
+        .week-date {
+          &.full-width {
+            flex: 1;
+          }
+        }
+      }
+      
       .week-date {
         font-size: 0.75rem;
         color: #6c757d;
@@ -73,6 +81,10 @@
         &.week-2 {
           background-color: #d1ecf1;
           color: #0c5460;
+        }
+        
+        &.hidden {
+          display: none !important;
         }
       }
     }
@@ -117,11 +129,31 @@
       .week-columns {
         display: flex;
         
+        &.weekly-mode {
+          .week-column {
+            &.full-width {
+              flex: 1;
+            }
+            
+            &.hidden {
+              display: none !important;
+            }
+          }
+        }
+        
         .week-column {
           flex: 1;
           
           &.week-1 {
             border-right: 1px solid #e9ecef;
+          }
+          
+          &.full-width {
+            flex: 1;
+          }
+          
+          &.hidden {
+            display: none !important;
           }
           
           .time-slot {
@@ -155,12 +187,39 @@
               }
             }
             
+            &.occupied-gray {
+              background-color: #f8f9fa;
+              border-left: 3px solid #6c757d;
+              cursor: not-allowed;
+              opacity: 0.7;
+              
+              .patient-name {
+                font-weight: 500;
+                color: #6c757d;
+                text-align: center;
+                padding: 0 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+            }
+            
             &.biweekly {
               border-left: 3px solid #6c757d;
               background-color: #e9ecef;
               
               .patient-name {
                 color: #6c757d;
+              }
+            }
+            
+            &.weekly {
+              border-left: 3px solid #28a745;
+              background-color: #d4edda;
+              
+              .patient-name {
+                color: #155724;
+                font-weight: 600;
               }
             }
             
