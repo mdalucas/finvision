@@ -7,6 +7,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Transaction } from '../../shared/models/transaction.model';
 import { FinanceService } from '../../shared/services/finance.service';
 import { TransactionModalComponent } from '../../shared/components/transaction-modal/transaction-modal.component';
+import { StandaloneAppointmentModalComponent } from '../../shared/components/standalone-appointment-modal/standalone-appointment-modal.component';
 
 interface CalendarDay {
   date: NgbDate;
@@ -182,15 +183,11 @@ export class Calendar implements OnInit, OnDestroy {
   }
 
   openTransactionModal(date?: NgbDate): void {
-    const modalRef = this.modalService.open(TransactionModalComponent, { size: 'lg' });
-    
-    // Definir como entrada por padrão
-    modalRef.componentInstance.defaultType = 'income';
-    modalRef.componentInstance.allowInstallments = false;
+    const modalRef = this.modalService.open(StandaloneAppointmentModalComponent, { size: 'lg' });
     
     if (date) {
       const dateString = `${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
-      modalRef.componentInstance.defaultDate = dateString;
+      modalRef.componentInstance.selectedDate = dateString;
     }
     
     modalRef.result.then((result) => {

@@ -1,0 +1,115 @@
+.modal-header {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border-bottom: none;
+  
+  .modal-title {
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .btn-close {
+    filter: invert(1);
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+  
+  .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-control,
+  .form-select {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    
+    &:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+  }
+  
+  .card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    
+    .card-title {
+      color: #495057;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    
+    p {
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  
+  .btn {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    transition: all 0.15s ease-in-out;
+    
+    &.btn-primary {
+      background-color: #28a745;
+      border-color: #28a745;
+      
+      &:hover:not(:disabled) {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+    
+    &.btn-secondary {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      
+      &:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+      }
+    }
+  }
+}
+
+// Responsividade
+@media (max-width: 576px) {
+  .modal-body {
+    padding: 1rem;
+    
+    .card-body {
+      padding: 0.75rem;
+    }
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1rem;
+    
+    .btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+    }
+  }
+}

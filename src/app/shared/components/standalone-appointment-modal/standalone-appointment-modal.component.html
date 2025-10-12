@@ -1,0 +1,103 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="fas fa-user-plus me-2"></i>
+    Atendimento Avulso
+  </h4>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  <form>
+    <!-- Data do Atendimento -->
+    <div class="mb-3">
+      <label for="appointmentDate" class="form-label">Data do Atendimento</label>
+      <input 
+        type="date" 
+        class="form-control" 
+        id="appointmentDate"
+        [value]="selectedDate"
+        readonly>
+    </div>
+
+    <!-- Seleção de Paciente -->
+    <div class="mb-3">
+      <label for="patientSelect" class="form-label">Selecionar Paciente *</label>
+      <select 
+        class="form-select" 
+        id="patientSelect"
+        [(ngModel)]="selectedPatient"
+        (change)="onPatientChange()"
+        name="patientSelect"
+        required>
+        <option value="">Selecione um paciente...</option>
+        <option 
+          *ngFor="let patient of allPatients" 
+          [ngValue]="patient">
+          {{ getPatientDisplayName(patient) }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Horário do Atendimento -->
+    <div class="mb-3">
+      <label for="appointmentTime" class="form-label">Horário do Atendimento *</label>
+      <input 
+        type="time" 
+        class="form-control" 
+        id="appointmentTime"
+        [(ngModel)]="appointmentTime"
+        name="appointmentTime"
+        required>
+    </div>
+
+    <!-- Observações -->
+    <div class="mb-3">
+      <label for="notes" class="form-label">Observações</label>
+      <textarea 
+        class="form-control" 
+        id="notes"
+        [(ngModel)]="notes"
+        name="notes"
+        rows="3"
+        placeholder="Observações sobre o atendimento..."></textarea>
+    </div>
+
+    <!-- Informações do Paciente Selecionado -->
+    <div class="mb-3" *ngIf="selectedPatient">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title">Informações do Paciente</h6>
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Nome:</strong> {{ selectedPatient.name }}</p>
+              <p class="mb-1"><strong>Telefone:</strong> {{ selectedPatient.phone }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1"><strong>CPF:</strong> {{ selectedPatient.cpf }}</p>
+              <p class="mb-1"><strong>Tipo:</strong> 
+                <span class="badge" [class]="selectedPatient.scheduleType === 'weekly' ? 'bg-success' : 'bg-info'">
+                  {{ selectedPatient.scheduleType === 'weekly' ? 'Semanal' : 'Quinzenal' }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">
+    <i class="fas fa-times me-1"></i>
+    Cancelar
+  </button>
+  <button 
+    type="button" 
+    class="btn btn-primary" 
+    (click)="saveAppointment()"
+    [disabled]="!selectedPatient || !appointmentTime">
+    <i class="fas fa-save me-1"></i>
+    Salvar Atendimento
+  </button>
+</div>
