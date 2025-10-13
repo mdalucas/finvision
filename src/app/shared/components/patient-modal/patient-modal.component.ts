@@ -15,6 +15,7 @@ import { ScheduleModalComponent } from '../schedule-modal/schedule-modal.compone
 })
 export class PatientModalComponent implements OnInit {
   @Input() patient: Patient | null = null;
+  @Input() preselectSchedule: { dayOfWeek: number, time: string, weekNumber: 1 | 2, dayName: string } | null = null;
   @Output() saved = new EventEmitter<void>();
 
   patientData = {
@@ -23,6 +24,8 @@ export class PatientModalComponent implements OnInit {
     cpf: '',
     scheduleType: 'weekly' as 'weekly' | 'biweekly'
   };
+  
+  preselectScheduleType: 'weekly' | 'biweekly' = 'weekly';
 
   isEditMode = false;
 
@@ -87,6 +90,15 @@ export class PatientModalComponent implements OnInit {
     });
     scheduleModalRef.componentInstance.patient = patient;
     
+    // Se há horário pré-selecionado, seleciona automaticamente
+    if (this.preselectSchedule) {
+      scheduleModalRef.componentInstance.preselectSlot = {
+        dayOfWeek: this.preselectSchedule.dayOfWeek,
+        time: this.preselectSchedule.time,
+        weekNumber: this.preselectSchedule.weekNumber
+      };
+    }
+    
     scheduleModalRef.result.then((result) => {
       if (result === 'saved') {
         this.saved.emit();
@@ -96,13 +108,85 @@ export class PatientModalComponent implements OnInit {
     });
   }
 
+  savePatientWithSchedule(): void {
+    if (!this.isValid() || !this.preselectSchedule) {
+      return;
+    }
+
+    // Cria o paciente com o horário já agendado
+    const patient = this.patientService.addPatient({
+      ...this.patientData,
+      scheduleType: this.preselectScheduleType,
+      appointments: [{
+        id: this.generateId(),
+        dayOfWeek: this.preselectSchedule.dayOfWeek,
+        time: this.preselectSchedule.time,
+        isBiweekly: this.preselectScheduleType === 'biweekly',
+        biweeklyWeek: this.preselectScheduleType === 'biweekly' ? this.preselectSchedule.weekNumber : undefined
+      }]
+    });
+
+    this.saved.emit();
+    this.close();
+  }
+
+  private generateId(): string {
+    return Math.random().toString(36).substr(2, 9);
+  }
+
   close(): void {
     this.modalService.dismissAll();
   }
 
-  private isValid(): boolean {
-    return !!(this.patientData.name.trim() && 
-              this.patientData.phone.trim() && 
-              this.patientData.cpf.trim());
+  openChangeScheduleModal(): void {
+    if (!this.patient) return;
+
+    // Primeiro salva as alterações do paciente
+    if (!this.isValid()) {
+      return;
+    }
+
+    // Atualiza o paciente com os dados alterados
+    const updatedPatient = this.patientService.updatePatient(this.patient.id, this.patientData);
+    if (!updatedPatient) {
+      return;
+    }
+
+    // Fecha o modal atual
+    this.close();
+
+    // Abre o modal de agenda com o paciente atualizado
+    const scheduleModalRef = this.modalService.open(ScheduleModalComponent, {
+      size: 'xl',
+      backdrop: 'static'
+    });
+    
+    scheduleModalRef.componentInstance.patient = updatedPatient;
+
+    scheduleModalRef.result.then((result) => {
+      if (result === 'saved') {
+        this.saved.emit();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
+  }
+
+  getDayName(dayOfWeek: number): string {
+    const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    return days[dayOfWeek] || '';
+  }
+
+  isValid(): boolean {
+    const basicValid = !!(this.patientData.name.trim() && 
+                          this.patientData.phone.trim() && 
+                          this.patientData.cpf.trim());
+    
+    // Se há horário pré-selecionado, também precisa ter tipo de agendamento
+    if (this.preselectSchedule) {
+      return basicValid && (this.preselectScheduleType === 'weekly' || this.preselectScheduleType === 'biweekly');
+    }
+    
+    return basicValid;
   }
 }

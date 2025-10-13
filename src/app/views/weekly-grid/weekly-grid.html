@@ -33,8 +33,6 @@
                 <div class="day-header">
                   <div class="day-name">{{ getDayName(day) }}</div>
                   <div class="week-dates" [class.split-dates]="hasBiweeklyPatientsInDay(day)">
-                    <div class="week-date week-1">{{ formatDate(weekDates.week1.startDate) }}</div>
-                    <div class="week-date week-2" [class.hidden]="!hasBiweeklyPatientsInDay(day)">{{ formatDate(weekDates.week2.startDate) }}</div>
                   </div>
                 </div>
               }
@@ -62,13 +60,19 @@
                             [class.occupied]="getSlotForDayWeekHour(day, 1, hour).isOccupied"
                             [class.biweekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'biweekly'"
                             [class.weekly]="getSlotForDayWeekHour(day, 1, hour).patient?.scheduleType === 'weekly'"
-                            [title]="getSlotTooltip(getSlotForDayWeekHour(day, 1, hour))">
+                            [class.clickable]="!getSlotForDayWeekHour(day, 1, hour).isOccupied"
+                            [title]="getSlotTooltip(getSlotForDayWeekHour(day, 1, hour))"
+                            (click)="onSlotClick(day, hour, 1)">
                             
                             @if (getSlotForDayWeekHour(day, 1, hour).isOccupied) {
                               <div class="slot-content">
                                 <div class="patient-name">
                                   {{ getSlotForDayWeekHour(day, 1, hour).patient?.name }}
                                 </div>
+                              </div>
+                            } @else {
+                              <div class="slot-content">
+                                <div class="add-text">Adicionar</div>
                               </div>
                             }
                           </div>
@@ -83,13 +87,19 @@
                             [class.occupied]="getSlotForDayWeekHour(day, 2, hour).isOccupied"
                             [class.biweekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'biweekly'"
                             [class.weekly]="getSlotForDayWeekHour(day, 2, hour).patient?.scheduleType === 'weekly'"
-                            [title]="getSlotTooltip(getSlotForDayWeekHour(day, 2, hour))">
+                            [class.clickable]="!getSlotForDayWeekHour(day, 2, hour).isOccupied"
+                            [title]="getSlotTooltip(getSlotForDayWeekHour(day, 2, hour))"
+                            (click)="onSlotClick(day, hour, 2)">
                             
                             @if (getSlotForDayWeekHour(day, 2, hour).isOccupied) {
                               <div class="slot-content">
                                 <div class="patient-name">
                                   {{ getSlotForDayWeekHour(day, 2, hour).patient?.name }}
                                 </div>
+                              </div>
+                            } @else {
+                              <div class="slot-content">
+                                <div class="add-text">Adicionar</div>
                               </div>
                             }
                           </div>

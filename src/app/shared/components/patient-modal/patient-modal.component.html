@@ -63,7 +63,96 @@
             <strong>Quinzenal:</strong> Atendimento a cada duas semanas, revezando horários
           </small>
         </div>
+        @if (isEditMode && patient && patient.scheduleType !== patientData.scheduleType) {
+          <div class="alert alert-warning mt-2 mb-0">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            <strong>Atenção:</strong> O tipo de agendamento foi alterado. 
+            Ao alterar o horário, a grade será atualizada para refletir esta mudança.
+          </div>
+        }
       </div>
+
+      <!-- Seção de Horários (apenas no modo de edição) -->
+        @if (isEditMode && patient && patient.appointments.length > 0) {
+          <div class="col-12 mb-3">
+            <label class="form-label">Horários Atuais</label>
+            <div class="card bg-light">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-8">
+                    <div class="appointment-list">
+                      @for (appointment of patient.appointments; track appointment.id) {
+                        <div class="appointment-item">
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar-day me-2 text-primary"></i>
+                            <span class="me-2">{{ getDayName(appointment.dayOfWeek) }}</span>
+                            <span class="me-2">{{ appointment.time }}</span>
+                            <span
+                              class="badge me-2"
+                              [class]="patient.scheduleType === 'weekly' ? 'bg-success' : 'bg-info'">
+                              {{ patient.scheduleType === 'weekly' ? 'Semanal' : 'Quinzenal' }}
+                            </span>
+                            @if (appointment.biweeklyWeek) {
+                              <span class="badge bg-secondary">
+                                Semana {{ appointment.biweeklyWeek }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    <button
+                      type="button"
+                      class="btn btn-warning btn-sm"
+                      (click)="openChangeScheduleModal()">
+                      <i class="fas fa-edit me-1"></i>
+                      Alterar Horário
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (preselectSchedule) {
+          <div class="col-12 mb-3">
+            <label class="form-label">Horário Selecionado</label>
+            <div class="card bg-success text-white">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-calendar-check me-2"></i>
+                  <span class="me-2">{{ preselectSchedule.dayName }}</span>
+                  <span class="me-2">{{ preselectSchedule.time }}</span>
+                  <span class="badge bg-light text-dark">
+                    Semana {{ preselectSchedule.weekNumber }}
+                  </span>
+                </div>
+                <small class="d-block mt-1 opacity-75">
+                  Este horário será automaticamente agendado para o paciente
+                </small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12 mb-3">
+            <label for="scheduleType" class="form-label">Tipo de Agendamento *</label>
+            <select 
+              id="scheduleType" 
+              class="form-select" 
+              [(ngModel)]="preselectScheduleType" 
+              name="scheduleType" 
+              required>
+              <option value="weekly">Semanal (toda semana)</option>
+              <option value="biweekly">Quinzenal (a cada 2 semanas)</option>
+            </select>
+            <small class="form-text text-muted">
+              Defina se o paciente será atendido semanalmente ou quinzenalmente
+            </small>
+          </div>
+        }
     </div>
   </form>
 </div>
@@ -83,13 +172,25 @@
     {{ isEditMode ? 'Atualizar' : 'Salvar' }}
   </button>
   
-  <button 
-    *ngIf="!isEditMode"
-    type="button" 
-    class="btn btn-success" 
-    (click)="openScheduleModal()"
-    [disabled]="!patientData.name.trim() || !patientData.phone.trim() || !patientData.cpf.trim()">
-    <i class="fas fa-calendar-plus me-1"></i>
-    Salvar e Agendar
-  </button>
+        @if (!isEditMode) {
+          @if (preselectSchedule) {
+            <button
+              type="button"
+              class="btn btn-success"
+              (click)="savePatientWithSchedule()"
+              [disabled]="!patientData.name.trim() || !patientData.phone.trim() || !patientData.cpf.trim()">
+              <i class="fas fa-save me-1"></i>
+              Salvar e Agendar
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-success"
+              (click)="openScheduleModal()"
+              [disabled]="!patientData.name.trim() || !patientData.phone.trim() || !patientData.cpf.trim()">
+              <i class="fas fa-calendar-plus me-1"></i>
+              Salvar e Agendar
+            </button>
+          }
+        }
 </div>

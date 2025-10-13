@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
 import { Patient, ScheduleSlot } from '../../shared/models/patient.model';
 import { PatientService } from '../../shared/services/patient.service';
+import { PatientModalComponent } from '../../shared/components/patient-modal/patient-modal.component';
 
 @Component({
   selector: 'app-weekly-grid',
@@ -24,7 +26,8 @@ export class WeeklyGrid implements OnInit, OnDestroy {
   };
 
   constructor(
-    private patientService: PatientService
+    private patientService: PatientService,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -155,6 +158,8 @@ export class WeeklyGrid implements OnInit, OnDestroy {
 
   // Verificar se há pacientes quinzenais em um dia específico
   hasBiweeklyPatientsInDay(dayOfWeek: number): boolean {
+    // Verificar se há pacientes quinzenais em qualquer horário deste dia
+    // que justifiquem a divisão das colunas
     return this.allPatients.some(patient => 
       patient.scheduleType === 'biweekly' &&
       patient.appointments.some(appointment => 
@@ -166,5 +171,37 @@ export class WeeklyGrid implements OnInit, OnDestroy {
 
   getOccupiedSlotsCount(): number {
     return this.scheduleSlots.filter(s => s.isOccupied).length;
+  }
+
+  onSlotClick(dayOfWeek: number, hour: number, weekNumber: 1 | 2): void {
+    const slot = this.getSlotForDayWeekHour(dayOfWeek, weekNumber, hour);
+    
+    // Só abre o modal se o slot estiver vazio
+    if (!slot.isOccupied) {
+      this.openPatientModal(dayOfWeek, hour, weekNumber);
+    }
+  }
+
+  private openPatientModal(dayOfWeek: number, hour: number, weekNumber: 1 | 2): void {
+    const modalRef = this.modalService.open(PatientModalComponent, { size: 'lg' });
+    
+    // Configurar dados pré-preenchidos
+    const time = `${hour.toString().padStart(2, '0')}:00`;
+    const dayName = this.getDayName(dayOfWeek);
+    
+    modalRef.componentInstance.preselectSchedule = {
+      dayOfWeek,
+      time,
+      weekNumber,
+      dayName
+    };
+    
+    modalRef.result.then((result) => {
+      if (result === 'saved') {
+        this.loadPatients();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 }

@@ -207,6 +207,22 @@ export class PatientService {
     return this.updatePatient(patientId, updatedPatient) !== null;
   }
 
+  // Limpar todos os appointments de um paciente específico
+  clearPatientAppointments(patientId: string): boolean {
+    const patient = this.getPatientById(patientId);
+    if (!patient) {
+      return false;
+    }
+
+    const updatedPatient = {
+      ...patient,
+      appointments: [],
+      updatedAt: new Date()
+    };
+
+    return this.updatePatient(patientId, updatedPatient) !== null;
+  }
+
   // Limpar todos os dados
   clearAllData(): void {
     localStorage.removeItem(this.STORAGE_KEY);

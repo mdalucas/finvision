@@ -163,7 +163,32 @@
       }
     }
     
-    &:hover {
+    &.clickable {
+      cursor: pointer;
+      
+      &:hover {
+        background: #e3f2fd;
+        border-color: #2196f3;
+        transform: scale(1.02);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .add-text {
+        color: #6c757d;
+        font-size: 0.75rem;
+        font-weight: 500;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+      }
+      
+      &:hover .add-text {
+        opacity: 1;
+        color: #2196f3;
+        font-weight: 600;
+      }
+    }
+    
+    &:not(.clickable):hover {
       background: #f8f9fa;
     }
   }

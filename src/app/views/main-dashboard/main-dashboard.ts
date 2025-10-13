@@ -24,9 +24,12 @@ export class MainDashboard implements OnInit, OnDestroy {
   pendingPatients: Transaction[] = [];
   paidPatients: Transaction[] = [];
   patients: Patient[] = [];
+  filteredPatients: Patient[] = [];
   
   totalPending = 0;
   totalPaid = 0;
+  
+  selectedDayFilter: string = '';
 
 
   constructor(
@@ -46,6 +49,8 @@ export class MainDashboard implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((patients) => {
         this.patients = patients;
+        this.sortPatientsChronologically();
+        this.applyFilter();
       });
   }
 
@@ -130,6 +135,48 @@ export class MainDashboard implements OnInit, OnDestroy {
 
   private loadPatients(): void {
     this.patients = this.patientService.getPatientsList();
+    this.sortPatientsChronologically();
+    this.applyFilter();
+  }
+
+  private sortPatientsChronologically(): void {
+    this.patients.sort((a, b) => {
+      // Se um paciente não tem appointments, coloca no final
+      if (a.appointments.length === 0 && b.appointments.length === 0) {
+        return a.name.localeCompare(b.name); // Ordena por nome se ambos não têm horários
+      }
+      if (a.appointments.length === 0) return 1;
+      if (b.appointments.length === 0) return -1;
+
+      // Pega o primeiro appointment de cada paciente
+      const firstAppointmentA = a.appointments[0];
+      const firstAppointmentB = b.appointments[0];
+
+      // Ordena primeiro por dia da semana (1-5, segunda a sexta)
+      if (firstAppointmentA.dayOfWeek !== firstAppointmentB.dayOfWeek) {
+        return firstAppointmentA.dayOfWeek - firstAppointmentB.dayOfWeek;
+      }
+
+      // Se for o mesmo dia, ordena por horário
+      return firstAppointmentA.time.localeCompare(firstAppointmentB.time);
+    });
+  }
+
+  filterPatientsByDay(): void {
+    this.applyFilter();
+  }
+
+  private applyFilter(): void {
+    if (!this.selectedDayFilter) {
+      // Se não há filtro selecionado, mostra todos os pacientes
+      this.filteredPatients = [...this.patients];
+    } else {
+      const selectedDay = parseInt(this.selectedDayFilter);
+      // Filtra pacientes que têm pelo menos um appointment no dia selecionado
+      this.filteredPatients = this.patients.filter(patient => 
+        patient.appointments.some(appointment => appointment.dayOfWeek === selectedDay)
+      );
+    }
   }
 
   openAddPatientModal(): void {

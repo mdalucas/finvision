@@ -223,6 +223,31 @@
               }
             }
             
+            &.current-slot {
+              background-color: #fff3cd !important;
+              border-left: 3px solid #ffc107 !important;
+              border: 2px solid #ffc107 !important;
+              
+              .patient-name {
+                color: #856404;
+                font-weight: 700;
+              }
+              
+              &::after {
+                content: "ATUAL";
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                background: #ffc107;
+                color: #856404;
+                font-size: 0.6rem;
+                font-weight: bold;
+                padding: 1px 3px;
+                border-radius: 2px;
+                line-height: 1;
+              }
+            }
+            
             &.selected {
               background-color: #28a745;
               color: white;

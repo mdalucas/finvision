@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -12,8 +12,9 @@ import { PatientService } from '../../services/patient.service';
   templateUrl: './schedule-modal.component.html',
   styleUrls: ['./schedule-modal.component.scss']
 })
-export class ScheduleModalComponent implements OnInit {
+export class ScheduleModalComponent implements OnInit, OnChanges {
   @Input() patient: Patient | null = null;
+  @Input() preselectSlot: { dayOfWeek: number, time: string, weekNumber: 1 | 2 } | null = null;
   @Output() saved = new EventEmitter<void>();
 
   scheduleSlots: ScheduleSlot[] = [];
@@ -32,6 +33,19 @@ export class ScheduleModalComponent implements OnInit {
   ngOnInit(): void {
     this.generateScheduleSlots();
     this.calculateWeekDates();
+    
+    // Se há slot pré-selecionado, seleciona automaticamente
+    if (this.preselectSlot) {
+      this.selectedSlots = [this.preselectSlot];
+    }
+  }
+
+  ngOnChanges(): void {
+    // Regenerar slots quando o paciente muda (incluindo mudança de scheduleType)
+    if (this.patient) {
+      this.generateScheduleSlots();
+      this.calculateWeekDates();
+    }
   }
 
   private generateScheduleSlots(): void {
@@ -123,13 +137,19 @@ export class ScheduleModalComponent implements OnInit {
       return;
     }
 
+    // Se estamos editando um paciente existente, remover todos os horários antigos primeiro
+    if (this.patient.appointments && this.patient.appointments.length > 0) {
+      this.patientService.clearPatientAppointments(this.patient.id);
+    }
+
+
     // Adicionar cada slot selecionado como appointment
     for (const slot of this.selectedSlots) {
       this.patientService.addAppointmentToPatient(this.patient.id, {
         dayOfWeek: slot.dayOfWeek,
         time: slot.time,
         isBiweekly: this.patient.scheduleType === 'biweekly',
-        biweeklyWeek: slot.weekNumber
+        biweeklyWeek: this.patient.scheduleType === 'biweekly' ? slot.weekNumber : undefined
       });
     }
 
@@ -160,5 +180,20 @@ export class ScheduleModalComponent implements OnInit {
       return `${slot.patient.name}${weekText}`;
     }
     return 'Horário disponível';
+  }
+
+  isCurrentPatientSlot(dayOfWeek: number, time: string, weekNumber: 1 | 2): boolean {
+    if (!this.patient) return false;
+
+    return this.patient.appointments.some(appointment => {
+      if (appointment.dayOfWeek === dayOfWeek && appointment.time === time) {
+        if (this.patient!.scheduleType === 'weekly') {
+          return weekNumber === 1; // Pacientes semanais sempre na semana 1
+        } else {
+          return appointment.biweeklyWeek === weekNumber;
+        }
+      }
+      return false;
+    });
   }
 }
