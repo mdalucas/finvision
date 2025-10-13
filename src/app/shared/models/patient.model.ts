@@ -4,6 +4,7 @@ export interface Patient {
   phone: string;
   cpf: string;
   scheduleType: 'weekly' | 'biweekly';
+  consultationValue: number; // Valor por consulta
   appointments: Appointment[];
   createdAt: Date;
   updatedAt: Date;

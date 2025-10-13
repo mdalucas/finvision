@@ -28,6 +28,7 @@ export class MainDashboard implements OnInit, OnDestroy {
   
   totalPending = 0;
   totalPaid = 0;
+  estimatedMonthlyIncome = 0;
   
   selectedDayFilter: string = '';
 
@@ -51,6 +52,7 @@ export class MainDashboard implements OnInit, OnDestroy {
         this.patients = patients;
         this.sortPatientsChronologically();
         this.applyFilter();
+        this.calculateEstimatedMonthlyIncome();
       });
   }
 
@@ -137,6 +139,7 @@ export class MainDashboard implements OnInit, OnDestroy {
     this.patients = this.patientService.getPatientsList();
     this.sortPatientsChronologically();
     this.applyFilter();
+    this.calculateEstimatedMonthlyIncome();
   }
 
   private sortPatientsChronologically(): void {
@@ -179,12 +182,51 @@ export class MainDashboard implements OnInit, OnDestroy {
     }
   }
 
+  private calculateEstimatedMonthlyIncome(): void {
+    this.estimatedMonthlyIncome = this.patientService.getEstimatedMonthlyIncome();
+  }
+
+  getCurrentMonthName(): string {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return months[new Date().getMonth()];
+  }
+
+  getCurrentYear(): number {
+    return new Date().getFullYear();
+  }
+
+  getTotalConsultations(): number {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    
+    let totalConsultations = 0;
+    
+    this.patients.forEach(patient => {
+      if (patient.appointments.length > 0) {
+        totalConsultations += this.patientService['calculateConsultationsThisMonth'](patient, currentMonth, currentYear);
+      }
+    });
+    
+    return totalConsultations;
+  }
+
+  getActivePatients(): number {
+    return this.patients.filter(patient => 
+      patient.appointments.length > 0 && patient.consultationValue > 0
+    ).length;
+  }
+
   openAddPatientModal(): void {
     const modalRef = this.modalService.open(PatientModalComponent, { size: 'lg' });
     
     modalRef.result.then((result) => {
       if (result === 'saved') {
         this.loadPatients();
+        this.calculateEstimatedMonthlyIncome();
       }
     }).catch(() => {
       // Modal dismissed
@@ -198,6 +240,7 @@ export class MainDashboard implements OnInit, OnDestroy {
     modalRef.result.then((result) => {
       if (result === 'saved') {
         this.loadPatients();
+        this.calculateEstimatedMonthlyIncome();
       }
     }).catch(() => {
       // Modal dismissed
@@ -207,6 +250,8 @@ export class MainDashboard implements OnInit, OnDestroy {
   deletePatient(patient: Patient): void {
     if (confirm(`Tem certeza que deseja excluir o paciente "${patient.name}"?`)) {
       this.patientService.deletePatient(patient.id);
+      this.loadPatients();
+      this.calculateEstimatedMonthlyIncome();
     }
   }
 

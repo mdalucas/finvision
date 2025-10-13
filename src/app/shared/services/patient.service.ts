@@ -278,4 +278,63 @@ export class PatientService {
     const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   }
+
+  // Calcular ganho mensal estimado
+  getEstimatedMonthlyIncome(): number {
+    const patients = this.patientsSubject.value;
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    
+    let totalIncome = 0;
+
+    patients.forEach(patient => {
+      if (patient.appointments.length === 0 || !patient.consultationValue) {
+        return;
+      }
+
+      // Calcular quantas consultas o paciente terá no mês atual
+      const consultationsThisMonth = this.calculateConsultationsThisMonth(patient, currentMonth, currentYear);
+      totalIncome += consultationsThisMonth * patient.consultationValue;
+    });
+
+    return totalIncome;
+  }
+
+  private calculateConsultationsThisMonth(patient: Patient, month: number, year: number): number {
+    const appointments = patient.appointments;
+    if (appointments.length === 0) return 0;
+
+    // Obter o primeiro e último dia do mês
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    let consultations = 0;
+
+    appointments.forEach(appointment => {
+      // Calcular quantas vezes este appointment ocorre no mês
+      const dayOfWeek = appointment.dayOfWeek;
+      
+      // Encontrar todas as datas deste dia da semana no mês
+      for (let day = firstDay.getDate(); day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        
+        if (date.getDay() === dayOfWeek) {
+          if (patient.scheduleType === 'weekly') {
+            consultations++;
+          } else if (patient.scheduleType === 'biweekly') {
+            // Para quinzenais, verificar se é a semana correta
+            const weekOfMonth = Math.ceil(day / 7);
+            const isCorrectWeek = (weekOfMonth % 2 === 1 && appointment.biweeklyWeek === 1) ||
+                                 (weekOfMonth % 2 === 0 && appointment.biweeklyWeek === 2);
+            if (isCorrectWeek) {
+              consultations++;
+            }
+          }
+        }
+      }
+    });
+
+    return consultations;
+  }
 }

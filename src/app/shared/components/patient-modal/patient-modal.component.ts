@@ -22,7 +22,8 @@ export class PatientModalComponent implements OnInit {
     name: '',
     phone: '',
     cpf: '',
-    scheduleType: 'weekly' as 'weekly' | 'biweekly'
+    scheduleType: 'weekly' as 'weekly' | 'biweekly',
+    consultationValue: 0
   };
   
   preselectScheduleType: 'weekly' | 'biweekly' = 'weekly';
@@ -41,7 +42,8 @@ export class PatientModalComponent implements OnInit {
         name: this.patient.name,
         phone: this.patient.phone,
         cpf: this.patient.cpf,
-        scheduleType: this.patient.scheduleType
+        scheduleType: this.patient.scheduleType,
+        consultationValue: this.patient.consultationValue || 0
       };
     }
   }
@@ -117,6 +119,7 @@ export class PatientModalComponent implements OnInit {
     const patient = this.patientService.addPatient({
       ...this.patientData,
       scheduleType: this.preselectScheduleType,
+      consultationValue: this.patientData.consultationValue,
       appointments: [{
         id: this.generateId(),
         dayOfWeek: this.preselectSchedule.dayOfWeek,
@@ -180,7 +183,8 @@ export class PatientModalComponent implements OnInit {
   isValid(): boolean {
     const basicValid = !!(this.patientData.name.trim() && 
                           this.patientData.phone.trim() && 
-                          this.patientData.cpf.trim());
+                          this.patientData.cpf.trim() &&
+                          this.patientData.consultationValue > 0);
     
     // Se há horário pré-selecionado, também precisa ter tipo de agendamento
     if (this.preselectSchedule) {

@@ -174,56 +174,6 @@ export class WeeklyGridComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Métodos de debug/teste
-  createTestData(): void {
-    const testPatient1 = this.patientService.addPatient({
-      name: 'João Silva',
-      phone: '(11) 99999-9999',
-      cpf: '123.456.789-00',
-      scheduleType: 'weekly',
-      appointments: [
-        {
-          id: '1',
-          dayOfWeek: 1, // Segunda
-          time: '09:00',
-          isBiweekly: false
-        },
-        {
-          id: '2',
-          dayOfWeek: 3, // Quarta
-          time: '14:00',
-          isBiweekly: false
-        }
-      ]
-    });
-
-    const testPatient2 = this.patientService.addPatient({
-      name: 'Maria Santos',
-      phone: '(11) 88888-8888',
-      cpf: '987.654.321-00',
-      scheduleType: 'biweekly',
-      appointments: [
-        {
-          id: '3',
-          dayOfWeek: 2, // Terça
-          time: '10:00',
-          isBiweekly: true,
-          biweeklyWeek: 1
-        },
-        {
-          id: '4',
-          dayOfWeek: 4, // Quinta
-          time: '15:00',
-          isBiweekly: true,
-          biweeklyWeek: 2
-        }
-      ]
-    });
-
-    console.log('Dados de teste criados:', { testPatient1, testPatient2 });
-    this.loadPatients();
-  }
-
   clearTestData(): void {
     this.patientService.clearAllData();
     this.loadPatients();

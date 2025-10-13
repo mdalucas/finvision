@@ -45,7 +45,7 @@
           required>
       </div>
 
-      <div class="col-12 mb-3">
+      <div class="col-md-6 mb-3">
         <label for="scheduleType" class="form-label">Tipo de Atendimento *</label>
         <select 
           id="scheduleType"
@@ -70,6 +70,26 @@
             Ao alterar o horário, a grade será atualizada para refletir esta mudança.
           </div>
         }
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="consultationValue" class="form-label">Valor por Consulta (R$) *</label>
+        <input 
+          type="number" 
+          id="consultationValue"
+          class="form-control" 
+          [(ngModel)]="patientData.consultationValue" 
+          name="consultationValue"
+          placeholder="0,00"
+          min="0"
+          step="0.01"
+          required>
+        <div class="form-text">
+          <small class="text-muted">
+            <i class="fas fa-dollar-sign me-1"></i>
+            Valor cobrado por cada consulta deste paciente
+          </small>
+        </div>
       </div>
 
       <!-- Seção de Horários (apenas no modo de edição) -->
